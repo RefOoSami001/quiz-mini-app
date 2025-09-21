@@ -766,10 +766,13 @@
 
         .loading-content {
             background: var(--tg-theme-secondary-bg-color, #ffffff);
-            padding: 30px;
+            padding: 40px;
             border-radius: 20px;
             text-align: center;
             animation: bounceIn 0.5s var(--animation-easing);
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         @keyframes bounceIn {
@@ -788,6 +791,100 @@
                 opacity: 1;
                 transform: scale(1);
             }
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .loading-spinner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 4px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            border-top: 4px solid var(--tg-theme-button-color, #007bff);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-spinner::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: calc(100% - 16px);
+            height: calc(100% - 16px);
+            border: 3px solid transparent;
+            border-top: 3px solid var(--tg-theme-button-color, #007bff);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: var(--tg-theme-text-color, #000000);
+            margin-bottom: 10px;
+            min-height: 24px;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        .loading-subtitle {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+            margin-top: 10px;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-top: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            padding: 12px 16px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+            z-index: 50;
+            display: none;
+        }
+
+        .footer.show {
+            display: block;
+        }
+
+        .footer a {
+            color: var(--tg-theme-button-color, #007bff);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all var(--animation-duration) var(--animation-easing);
+        }
+
+        .footer a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        /* Adjust quiz navigation when footer is shown */
+        .quiz-navigation.with-footer {
+            bottom: 50px;
         }
 
         @media (max-width: 480px) {
@@ -837,8 +934,9 @@
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
-            <div class="spinner"></div>
-            <div id="loadingText">Processing your request...</div>
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loadingText">Processing your request...</div>
+            <div class="loading-subtitle" id="loadingSubtitle">This may take a few moments</div>
         </div>
     </div>
 
@@ -1040,6 +1138,11 @@
         <div id="messageContainer"></div>
     </div>
 
+    <!-- Footer -->
+    <div class="footer" id="footer">
+        Made with ❤️ By <a href="https://t.me/RefOoSami" target="_blank">Raafat Sami</a>
+    </div>
+
     <script>
         class QuizApp {
             constructor() {
@@ -1057,6 +1160,8 @@
                 this.initializeEventListeners();
                 this.initializeTelegramWebApp();
                 this.initializeLanguage();
+                this.initializeLoadingMessages();
+                this.showFooter();
             }
 
             generateSessionId() {
@@ -1081,6 +1186,32 @@
                         this.setLanguage(lang);
                     });
                 });
+            }
+
+            initializeLoadingMessages() {
+                this.loadingMessages = {
+                    en: [
+                        "Analyzing your material...",
+                        "Crafting perfect questions...",
+                        "Generating multiple choice options...",
+                        "Adding explanations...",
+                        "Finalizing your quiz...",
+                        "Almost ready!"
+                    ],
+                    ar: [
+                        "جاري تحليل مادتك...",
+                        "صياغة الأسئلة المثالية...",
+                        "إنشاء خيارات متعددة...",
+                        "إضافة التفسيرات...",
+                        "إنهاء الاختبار...",
+                        "تقريباً جاهز!"
+                    ]
+                };
+                this.currentLoadingIndex = 0;
+            }
+
+            showFooter() {
+                document.getElementById('footer').classList.add('show');
             }
 
             setLanguage(lang) {
@@ -1454,6 +1585,9 @@
                 document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
                 document.getElementById('quizContainer').classList.add('active');
                 
+                // Adjust navigation for footer
+                document.querySelector('.quiz-navigation').classList.add('with-footer');
+                
                 this.displayQuestion();
             }
 
@@ -1626,16 +1760,28 @@
             }
 
             showLoading(text) {
-                const loadingText = this.currentLanguage === 'ar' 
-                    ? 'جاري تحليل مادتك وصياغة الأسئلة...'
-                    : 'Analyzing your material and crafting questions...';
-                
-                document.getElementById('loadingText').textContent = loadingText;
                 document.getElementById('loadingOverlay').classList.add('show');
+                this.currentLoadingIndex = 0;
+                this.updateLoadingMessage();
+                
+                // Rotate loading messages every 2 seconds
+                this.loadingInterval = setInterval(() => {
+                    this.currentLoadingIndex = (this.currentLoadingIndex + 1) % this.loadingMessages[this.currentLanguage].length;
+                    this.updateLoadingMessage();
+                }, 2000);
+            }
+
+            updateLoadingMessage() {
+                const messages = this.loadingMessages[this.currentLanguage];
+                document.getElementById('loadingText').textContent = messages[this.currentLoadingIndex];
             }
 
             hideLoading() {
                 document.getElementById('loadingOverlay').classList.remove('show');
+                if (this.loadingInterval) {
+                    clearInterval(this.loadingInterval);
+                    this.loadingInterval = null;
+                }
             }
 
             async sendToTelegram() {
