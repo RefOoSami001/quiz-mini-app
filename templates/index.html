@@ -491,6 +491,7 @@
 
         .quiz-container {
             display: none;
+            padding-bottom: 100px; /* Space for fixed navigation */
         }
 
         .quiz-container.active {
@@ -611,10 +612,18 @@
         }
 
         .quiz-navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-top: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
 
         .quiz-actions {
@@ -801,6 +810,14 @@
                 left: 8px;
                 right: auto;
             }
+
+            .quiz-navigation {
+                padding: 12px;
+            }
+
+            .quiz-container {
+                padding-bottom: 80px; /* Smaller space on mobile */
+            }
         }
     </style>
 </head>
@@ -827,10 +844,6 @@
 
     <div class="container">
         <div class="header">
-            <h1>
-                <i class="fas fa-bullseye"></i>
-                <span data-en="RefOo Quiz Maker" data-ar="صانع اختبارات ريفو">RefOo Quiz Maker</span>
-            </h1>
             <p data-en="Transform your study materials into interactive quizzes" data-ar="حول موادك الدراسية إلى اختبارات تفاعلية">Transform your study materials into interactive quizzes</p>
         </div>
 
