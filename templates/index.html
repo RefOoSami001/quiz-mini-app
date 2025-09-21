@@ -520,6 +520,28 @@
             color: var(--tg-theme-text-color, #000000);
         }
 
+        .explanation {
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            border-left: 4px solid var(--tg-theme-button-color, #007bff);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--tg-theme-text-color, #000000);
+            display: none;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .explanation-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--tg-theme-button-color, #007bff);
+        }
+
         .options {
             list-style: none;
         }
@@ -970,6 +992,10 @@
                 <div class="question-number" id="questionNumber" data-en="Question 1 of 10" data-ar="سؤال 1 من 10">Question 1 of 10</div>
                 <div class="question-text" id="questionText" data-en="Loading question..." data-ar="جاري تحميل السؤال...">Loading question...</div>
                 <ul class="options" id="optionsList"></ul>
+                <div class="explanation" id="explanation">
+                    <div class="explanation-title" data-en="Explanation:" data-ar="التفسير:">Explanation:</div>
+                    <div id="explanationText"></div>
+                </div>
             </div>
             
             <div class="quiz-navigation">
@@ -1077,20 +1103,31 @@
                 
                 // Update button icons for RTL
                 if (lang === 'ar') {
+                    // For Arabic, back buttons should point right, forward buttons should point left
+                    document.querySelectorAll('.btn-secondary i.fa-arrow-left').forEach(icon => {
+                        icon.className = 'fas fa-arrow-right';
+                    });
                     document.querySelectorAll('.btn i.fa-arrow-right').forEach(icon => {
                         icon.className = 'fas fa-arrow-left';
                     });
-                    document.querySelectorAll('.quiz-btn i.fa-arrow-right').forEach(icon => {
-                        icon.className = 'fas fa-arrow-left';
-                    });
-                    document.querySelectorAll('.quiz-btn i.fa-arrow-left').forEach(icon => {
+                    document.querySelectorAll('.quiz-btn-secondary i.fa-arrow-left').forEach(icon => {
                         icon.className = 'fas fa-arrow-right';
                     });
+                    document.querySelectorAll('.quiz-btn-primary i.fa-arrow-right').forEach(icon => {
+                        icon.className = 'fas fa-arrow-left';
+                    });
                 } else {
+                    // For English, back buttons should point left, forward buttons should point right
+                    document.querySelectorAll('.btn-secondary i.fa-arrow-right').forEach(icon => {
+                        icon.className = 'fas fa-arrow-left';
+                    });
                     document.querySelectorAll('.btn i.fa-arrow-left').forEach(icon => {
                         icon.className = 'fas fa-arrow-right';
                     });
-                    document.querySelectorAll('.quiz-btn i.fa-arrow-left').forEach(icon => {
+                    document.querySelectorAll('.quiz-btn-secondary i.fa-arrow-right').forEach(icon => {
+                        icon.className = 'fas fa-arrow-left';
+                    });
+                    document.querySelectorAll('.quiz-btn-primary i.fa-arrow-left').forEach(icon => {
                         icon.className = 'fas fa-arrow-right';
                     });
                 }
@@ -1123,6 +1160,7 @@
                         document.querySelectorAll('.input-btn').forEach(b => b.classList.remove('selected'));
                         e.target.classList.add('selected');
                         this.selectedInputType = e.target.dataset.type;
+                        console.log('Input type selected:', this.selectedInputType);
                         document.getElementById('nextStep3').disabled = false;
                     });
                 });
@@ -1141,10 +1179,14 @@
                 });
 
                 document.getElementById('nextStep3').addEventListener('click', () => {
+                    console.log('Selected input type:', this.selectedInputType);
                     if (this.selectedInputType === 'text') {
                         this.showStep(4);
-                    } else {
+                    } else if (this.selectedInputType === 'pdf') {
                         this.showStep(5);
+                    } else {
+                        console.log('No input type selected');
+                        this.showMessage('Please select an input type first.', 'error');
                     }
                 });
 
@@ -1424,6 +1466,10 @@
                     optionsList.appendChild(li);
                 });
                 
+                // Hide explanation initially
+                const explanation = document.getElementById('explanation');
+                explanation.classList.remove('show');
+                
                 // Update navigation buttons
                 document.getElementById('prevQuestion').disabled = this.currentQuestionIndex === 0;
                 document.getElementById('nextQuestion').style.display = 'none';
@@ -1459,6 +1505,14 @@
                 document.querySelectorAll('.option').forEach(opt => {
                     opt.style.pointerEvents = 'none';
                 });
+                
+                // Show explanation for model 1 questions
+                if (this.selectedModel === '1' && question.explanation) {
+                    setTimeout(() => {
+                        document.getElementById('explanationText').textContent = question.explanation;
+                        document.getElementById('explanation').classList.add('show');
+                    }, 500);
+                }
                 
                 // Check if this is the last question
                 if (this.currentQuestionIndex === this.questions.length - 1) {
