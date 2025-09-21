@@ -190,6 +190,21 @@
             color: var(--tg-theme-text-color, #000000);
         }
 
+        .step-navigation {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .step-navigation .btn {
+            flex: 1;
+        }
+
+        .step-navigation .btn-secondary {
+            flex: 0 0 auto;
+            min-width: 120px;
+        }
+
         .model-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -813,10 +828,12 @@
                     </div>
                 </button>
             </div>
-            <button class="btn" id="nextStep1" disabled>
-                <i class="fas fa-arrow-right"></i>
-                <span data-en="Continue" data-ar="متابعة">Continue</span>
-            </button>
+            <div class="step-navigation">
+                <button class="btn" id="nextStep1" disabled>
+                    <i class="fas fa-arrow-right"></i>
+                    <span data-en="Continue" data-ar="متابعة">Continue</span>
+                </button>
+            </div>
         </div>
 
         <!-- Step 2: Question Count (Model 2 only) -->
@@ -848,10 +865,16 @@
                     <span data-en="30 Questions" data-ar="30 سؤال">30 Questions</span>
                 </button>
             </div>
-            <button class="btn" id="nextStep2" disabled>
-                <i class="fas fa-arrow-right"></i>
-                <span data-en="Continue" data-ar="متابعة">Continue</span>
-            </button>
+            <div class="step-navigation">
+                <button class="btn btn-secondary" id="backStep2">
+                    <i class="fas fa-arrow-left"></i>
+                    <span data-en="Back" data-ar="رجوع">Back</span>
+                </button>
+                <button class="btn" id="nextStep2" disabled>
+                    <i class="fas fa-arrow-right"></i>
+                    <span data-en="Continue" data-ar="متابعة">Continue</span>
+                </button>
+            </div>
         </div>
 
         <!-- Step 3: Input Type -->
@@ -867,10 +890,16 @@
                     <span data-en="PDF Document" data-ar="مستند PDF">PDF Document</span>
                 </button>
             </div>
-            <button class="btn" id="nextStep3" disabled>
-                <i class="fas fa-arrow-right"></i>
-                <span data-en="Continue" data-ar="متابعة">Continue</span>
-            </button>
+            <div class="step-navigation">
+                <button class="btn btn-secondary" id="backStep3">
+                    <i class="fas fa-arrow-left"></i>
+                    <span data-en="Back" data-ar="رجوع">Back</span>
+                </button>
+                <button class="btn" id="nextStep3" disabled>
+                    <i class="fas fa-arrow-right"></i>
+                    <span data-en="Continue" data-ar="متابعة">Continue</span>
+                </button>
+            </div>
         </div>
 
         <!-- Step 4: Text Input -->
@@ -880,10 +909,16 @@
                 data-placeholder-en="Paste or type your study material here. The more detailed your text, the better the questions!"
                 data-placeholder-ar="الصق أو اكتب مادتك الدراسية هنا. كلما كان النص أكثر تفصيلاً، كانت الأسئلة أفضل!"
                 placeholder="Paste or type your study material here. The more detailed your text, the better the questions!"></textarea>
-            <button class="btn" id="generateQuestions">
-                <i class="fas fa-magic"></i>
-                <span data-en="Generate Quiz" data-ar="إنشاء اختبار">Generate Quiz</span>
-            </button>
+            <div class="step-navigation">
+                <button class="btn btn-secondary" id="backStep4">
+                    <i class="fas fa-arrow-left"></i>
+                    <span data-en="Back" data-ar="رجوع">Back</span>
+                </button>
+                <button class="btn" id="generateQuestions">
+                    <i class="fas fa-magic"></i>
+                    <span data-en="Generate Quiz" data-ar="إنشاء اختبار">Generate Quiz</span>
+                </button>
+            </div>
         </div>
 
         <!-- Step 4: PDF Input -->
@@ -901,10 +936,16 @@
                 data-placeholder-en="Page range (e.g., 1-5 or 3)"
                 data-placeholder-ar="نطاق الصفحات (مثل: 1-5 أو 3)"
                 placeholder="Page range (e.g., 1-5 or 3)">
-            <button class="btn" id="processPdf">
-                <i class="fas fa-cogs"></i>
-                <span data-en="Process PDF" data-ar="معالجة PDF">Process PDF</span>
-            </button>
+            <div class="step-navigation">
+                <button class="btn btn-secondary" id="backStep5">
+                    <i class="fas fa-arrow-left"></i>
+                    <span data-en="Back" data-ar="رجوع">Back</span>
+                </button>
+                <button class="btn" id="processPdf">
+                    <i class="fas fa-cogs"></i>
+                    <span data-en="Process PDF" data-ar="معالجة PDF">Process PDF</span>
+                </button>
+            </div>
         </div>
 
         <!-- Loading State -->
@@ -919,6 +960,10 @@
                 <button class="telegram-poll-btn" id="sendToTelegram">
                     <i class="fab fa-telegram"></i>
                     <span data-en="Send to Telegram Chat" data-ar="إرسال إلى دردشة تليجرام">Send to Telegram Chat</span>
+                </button>
+                <button class="btn btn-secondary" id="testResults" style="display: none;">
+                    <i class="fas fa-test-tube"></i>
+                    <span>Test Results</span>
                 </button>
             </div>
             
@@ -1104,6 +1149,27 @@
                     }
                 });
 
+                // Back navigation
+                document.getElementById('backStep2').addEventListener('click', () => {
+                    this.showStep(1);
+                });
+
+                document.getElementById('backStep3').addEventListener('click', () => {
+                    if (this.selectedModel === '2') {
+                        this.showStep(2);
+                    } else {
+                        this.showStep(1);
+                    }
+                });
+
+                document.getElementById('backStep4').addEventListener('click', () => {
+                    this.showStep(3);
+                });
+
+                document.getElementById('backStep5').addEventListener('click', () => {
+                    this.showStep(3);
+                });
+
                 // Text input
                 document.getElementById('generateQuestions').addEventListener('click', () => {
                     const text = document.getElementById('textInput').value.trim();
@@ -1143,6 +1209,13 @@
                     console.log('Button disabled?', e.target.disabled);
                     console.log('Current question index:', this.currentQuestionIndex);
                     console.log('Total questions:', this.questions.length);
+                    
+                    // Prevent action if button is disabled
+                    if (e.target.disabled) {
+                        console.log('Button is disabled, ignoring click');
+                        return;
+                    }
+                    
                     this.nextQuestion();
                 });
 
@@ -1157,6 +1230,12 @@
                 // Telegram poll button
                 document.getElementById('sendToTelegram').addEventListener('click', () => {
                     this.sendToTelegram();
+                });
+
+                // Test results button (for debugging)
+                document.getElementById('testResults').addEventListener('click', () => {
+                    console.log('Test results button clicked');
+                    this.showResults();
                 });
             }
 
@@ -1332,6 +1411,9 @@
                 document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
                 document.getElementById('quizContainer').classList.add('active');
                 
+                // Show test button for debugging
+                document.getElementById('testResults').style.display = 'inline-block';
+                
                 this.displayQuestion();
             }
 
@@ -1452,10 +1534,13 @@
                 
                 document.getElementById('scoreText').textContent = scoreText;
                 
+                // Hide quiz container and show results
                 document.getElementById('quizContainer').classList.remove('active');
                 document.getElementById('resultsContainer').classList.add('active');
                 
                 console.log('Results container should now be active');
+                console.log('Quiz container active?', document.getElementById('quizContainer').classList.contains('active'));
+                console.log('Results container active?', document.getElementById('resultsContainer').classList.contains('active'));
             }
 
             restartQuiz() {
