@@ -19,7 +19,7 @@
         :root {
             --font-english: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-arabic: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
-            --animation-duration: 0.3s;
+            --animation-duration: 0.2s;
             --animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -162,14 +162,14 @@
             display: none;
             opacity: 0;
             transform: translateX(30px);
-            transition: all var(--animation-duration) var(--animation-easing);
+            transition: all 0.2s var(--animation-easing);
         }
 
         .step.active {
             display: block;
             opacity: 1;
             transform: translateX(0);
-            animation: slideInFromRight 0.4s var(--animation-easing);
+            animation: slideInFromRight 0.3s var(--animation-easing);
         }
 
         @keyframes slideInFromRight {
@@ -566,26 +566,26 @@
             background: #4caf50;
             color: white;
             border-color: #4caf50;
-            animation: correctPulse 0.6s ease-in-out;
+            animation: correctPulse 0.3s ease-in-out;
         }
 
         .option.incorrect {
             background: #f44336;
             color: white;
             border-color: #f44336;
-            animation: incorrectShake 0.6s ease-in-out;
+            animation: incorrectShake 0.3s ease-in-out;
         }
 
         @keyframes correctPulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.03); }
             100% { transform: scale(1); }
         }
 
         @keyframes incorrectShake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
         }
 
         .quiz-navigation {
@@ -1245,7 +1245,7 @@
                 messageDiv.style.transform = 'translateY(-20px)';
                 
                 setTimeout(() => {
-                    messageDiv.style.transition = 'all 0.3s ease';
+                    messageDiv.style.transition = 'all 0.2s ease';
                     messageDiv.style.opacity = '1';
                     messageDiv.style.transform = 'translateY(0)';
                 }, 10);
@@ -1255,8 +1255,8 @@
                     messageDiv.style.transform = 'translateY(-20px)';
                     setTimeout(() => {
                         messageDiv.remove();
-                    }, 300);
-                }, 5000);
+                    }, 200);
+                }, 3000);
             }
 
             async generateQuestions(text) {
@@ -1462,16 +1462,16 @@
                 
                 // Check if this is the last question
                 if (this.currentQuestionIndex === this.questions.length - 1) {
-                    // Show results after a delay
+                    // Show results after a shorter delay
                     setTimeout(() => {
                         this.showResults();
-                    }, 2000);
+                    }, 800);
                 } else {
-                    // Show next button for non-last questions
+                    // Show next button for non-last questions with faster timing
                     setTimeout(() => {
                         document.getElementById('nextQuestion').style.display = 'inline-block';
                         document.getElementById('nextQuestion').disabled = false;
-                    }, 1000);
+                    }, 300);
                 }
             }
 
