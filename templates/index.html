@@ -3,9 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RefOo Quiz Maker</title>
+    <title>RefOo Quiz Maker - AI-Powered Learning</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary-color: #f1f5f9;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,178 +42,453 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, var(--tg-theme-bg-color, #f8f9fa) 0%, var(--tg-theme-secondary-bg-color, #e9ecef) 100%);
-            color: var(--tg-theme-text-color, #212529);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-primary);
             line-height: 1.6;
-            padding: 16px;
             min-height: 100vh;
-            margin: 0;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
 
         .header {
-            text-align: center;
-            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
         }
 
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 12px;
-            color: var(--tg-theme-text-color, #000000);
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--tg-theme-button-color, #007bff), #0056b3);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .header p {
-            color: var(--tg-theme-hint-color, #999999);
-            font-size: 16px;
+        .language-selector {
+            position: relative;
+        }
+
+        .language-btn {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .language-btn:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+            margin-top: 0.5rem;
+        }
+
+        .language-dropdown.show {
+            display: block;
+        }
+
+        .language-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .language-option:hover {
+            background: var(--bg-secondary);
+        }
+
+        .language-option.selected {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem 1.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            font-weight: 400;
         }
 
         .card {
-            background: var(--tg-theme-secondary-bg-color, #ffffff);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            background: var(--bg-primary);
+            border-radius: var(--radius-2xl);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
         }
 
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
         }
 
         .step {
             display: none;
+            animation: fadeInUp 0.5s ease-out;
         }
 
         .step.active {
             display: block;
         }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .step-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--tg-theme-text-color, #000000);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .step-icon {
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
         }
 
         .model-options {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .model-btn {
-            padding: 15px;
-            border: 2px solid var(--tg-theme-button-color, #007bff);
-            border-radius: 8px;
-            background: transparent;
-            color: var(--tg-theme-button-color, #007bff);
-            font-size: 14px;
-            font-weight: 500;
+            padding: 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .model-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .model-btn:hover::before {
+            left: 100%;
         }
 
         .model-btn:hover {
-            background: var(--tg-theme-button-color, #007bff);
-            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .model-btn.selected {
-            background: var(--tg-theme-button-color, #007bff);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
             color: white;
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .model-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .model-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .model-description {
+            font-size: 0.875rem;
+            opacity: 0.8;
         }
 
         .question-count-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .count-btn {
-            padding: 12px;
-            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
-            border-radius: 6px;
-            background: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            font-size: 14px;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .count-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .count-btn:hover::before {
+            left: 100%;
         }
 
         .count-btn:hover {
-            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .count-btn.selected {
-            background: var(--tg-theme-button-color, #007bff);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
             color: white;
-            border-color: var(--tg-theme-button-color, #007bff);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-lg);
         }
 
         .input-type-options {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .input-btn {
-            padding: 15px;
-            border: 2px solid var(--tg-theme-button-color, #007bff);
-            border-radius: 8px;
-            background: transparent;
-            color: var(--tg-theme-button-color, #007bff);
-            font-size: 14px;
-            font-weight: 500;
+            padding: 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .input-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .input-btn:hover::before {
+            left: 100%;
         }
 
         .input-btn:hover {
-            background: var(--tg-theme-button-color, #007bff);
-            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .input-btn.selected {
-            background: var(--tg-theme-button-color, #007bff);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
             color: white;
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .input-icon {
+            font-size: 2rem;
         }
 
         .text-input {
             width: 100%;
             min-height: 200px;
-            padding: 15px;
-            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
-            border-radius: 8px;
-            background: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            font-size: 14px;
+            padding: 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
             resize: vertical;
             font-family: inherit;
+            transition: all 0.3s ease;
+            line-height: 1.6;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .text-input::placeholder {
+            color: var(--text-muted);
         }
 
         .file-input-container {
             text-align: center;
-            padding: 20px;
-            border: 2px dashed var(--tg-theme-section-separator-color, #e1e5e9);
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 3rem 2rem;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-xl);
+            margin-bottom: 1.5rem;
+            background: var(--bg-secondary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-input-container:hover {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .file-input-container.dragover {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.1);
+            transform: scale(1.02);
         }
 
         .file-input {
@@ -192,40 +496,65 @@
         }
 
         .file-input-label {
-            display: inline-block;
-            padding: 10px 20px;
-            background: var(--tg-theme-button-color, #007bff);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
             color: white;
-            border-radius: 6px;
+            border-radius: var(--radius-lg);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
 
         .page-range-input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
-            border-radius: 6px;
-            background: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            font-size: 14px;
-            margin-bottom: 15px;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .page-range-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .page-range-input::placeholder {
+            color: var(--text-muted);
         }
 
         .btn {
             width: 100%;
-            padding: 16px 24px;
-            background: linear-gradient(135deg, var(--tg-theme-button-color, #007bff) 0%, #0056b3 100%);
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: var(--radius-xl);
+            font-size: 1.125rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .btn::before {
@@ -244,19 +573,19 @@
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
-            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-secondary {
@@ -504,86 +833,261 @@
             display: none !important;
         }
 
-        @media (max-width: 480px) {
-            .model-options,
+        /* RTL Support */
+        [dir="rtl"] .header-content {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .language-dropdown {
+            right: auto;
+            left: 0;
+        }
+
+        [dir="rtl"] .step-title {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .model-btn,
+        [dir="rtl"] .input-btn {
+            text-align: right;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .welcome-title {
+                font-size: 2rem;
+            }
+
+            .welcome-subtitle {
+                font-size: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .model-options {
+                grid-template-columns: 1fr;
+            }
+
+            .question-count-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
             .input-type-options {
                 grid-template-columns: 1fr;
             }
-            
+        }
+
+        @media (max-width: 480px) {
+            .welcome-title {
+                font-size: 1.75rem;
+            }
+
             .question-count-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .step-title {
+                font-size: 1.25rem;
+            }
+
+            .model-btn,
+            .input-btn {
+                padding: 1rem;
+            }
+
+            .btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #1e293b;
+                --bg-secondary: #334155;
+                --bg-tertiary: #475569;
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --text-muted: #94a3b8;
+                --border-color: #475569;
+                --border-light: #334155;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
         <div class="header">
-            <h1>🎯 RefOo Quiz Maker</h1>
-            <p>Transform your study materials into interactive quizzes</p>
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">Q</div>
+                    <div class="logo-text">RefOo Quiz Maker</div>
+                </div>
+                <div class="language-selector">
+                    <button class="language-btn" id="languageBtn">
+                        <i class="fas fa-globe"></i>
+                        <span id="currentLanguage">English</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <div class="language-option selected" data-lang="en">
+                            <i class="fas fa-flag-usa"></i>
+                            <span>English</span>
+                        </div>
+                        <div class="language-option" data-lang="es">
+                            <i class="fas fa-flag"></i>
+                            <span>Español</span>
+                        </div>
+                        <div class="language-option" data-lang="fr">
+                            <i class="fas fa-flag"></i>
+                            <span>Français</span>
+                        </div>
+                        <div class="language-option" data-lang="de">
+                            <i class="fas fa-flag"></i>
+                            <span>Deutsch</span>
+                        </div>
+                        <div class="language-option" data-lang="ar">
+                            <i class="fas fa-flag"></i>
+                            <span>العربية</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <div class="main-content">
+            <div class="welcome-section">
+                <h1 class="welcome-title" data-translate="welcome_title">AI-Powered Quiz Generator</h1>
+                <p class="welcome-subtitle" data-translate="welcome_subtitle">Transform your study materials into interactive quizzes with advanced AI technology</p>
+            </div>
 
         <!-- Step 1: Model Selection -->
         <div class="card step active" id="step1">
-            <div class="step-title">Choose Quiz Creator</div>
+            <div class="step-title">
+                <div class="step-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <span data-translate="step1_title">Choose Quiz Creator</span>
+            </div>
             <div class="model-options">
                 <button class="model-btn" data-model="1">
-                    🧠 Standard Quiz<br>
-                    <small>With explanations</small>
+                    <div class="model-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="model-title" data-translate="model1_title">Standard Quiz</div>
+                    <div class="model-description" data-translate="model1_desc">With detailed explanations</div>
                 </button>
                 <button class="model-btn" data-model="2">
-                    ✨ Custom Quiz<br>
-                    <small>Choose question count</small>
+                    <div class="model-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <div class="model-title" data-translate="model2_title">Custom Quiz</div>
+                    <div class="model-description" data-translate="model2_desc">Choose question count</div>
                 </button>
             </div>
-            <button class="btn" id="nextStep1" disabled>Continue</button>
+            <button class="btn" id="nextStep1" disabled>
+                <i class="fas fa-arrow-right"></i>
+                <span data-translate="continue">Continue</span>
+            </button>
         </div>
 
         <!-- Step 2: Question Count (Model 2 only) -->
         <div class="card step" id="step2">
-            <div class="step-title">How many questions?</div>
-            <div class="question-count-grid">
-                <button class="count-btn" data-count="5">5 Questions</button>
-                <button class="count-btn" data-count="10">10 Questions</button>
-                <button class="count-btn" data-count="15">15 Questions</button>
-                <button class="count-btn" data-count="20">20 Questions</button>
-                <button class="count-btn" data-count="25">25 Questions</button>
-                <button class="count-btn" data-count="30">30 Questions</button>
+            <div class="step-title">
+                <div class="step-icon">
+                    <i class="fas fa-list-ol"></i>
+                </div>
+                <span data-translate="step2_title">How many questions?</span>
             </div>
-            <button class="btn" id="nextStep2" disabled>Continue</button>
+            <div class="question-count-grid">
+                <button class="count-btn" data-count="5">5</button>
+                <button class="count-btn" data-count="10">10</button>
+                <button class="count-btn" data-count="15">15</button>
+                <button class="count-btn" data-count="20">20</button>
+                <button class="count-btn" data-count="25">25</button>
+                <button class="count-btn" data-count="30">30</button>
+            </div>
+            <button class="btn" id="nextStep2" disabled>
+                <i class="fas fa-arrow-right"></i>
+                <span data-translate="continue">Continue</span>
+            </button>
         </div>
 
         <!-- Step 3: Input Type -->
         <div class="card step" id="step3">
-            <div class="step-title">How would you like to share your materials?</div>
+            <div class="step-title">
+                <div class="step-icon">
+                    <i class="fas fa-upload"></i>
+                </div>
+                <span data-translate="step3_title">How would you like to share your materials?</span>
+            </div>
             <div class="input-type-options">
                 <button class="input-btn" data-type="text">
-                    📄 Text Message
+                    <div class="input-icon">
+                        <i class="fas fa-file-text"></i>
+                    </div>
+                    <span data-translate="input_text">Text Message</span>
                 </button>
                 <button class="input-btn" data-type="pdf">
-                    📚 PDF Document
+                    <div class="input-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <span data-translate="input_pdf">PDF Document</span>
                 </button>
             </div>
-            <button class="btn" id="nextStep3" disabled>Continue</button>
+            <button class="btn" id="nextStep3" disabled>
+                <i class="fas fa-arrow-right"></i>
+                <span data-translate="continue">Continue</span>
+            </button>
         </div>
 
         <!-- Step 4: Text Input -->
         <div class="card step" id="step4">
-            <div class="step-title">Paste your study text</div>
-            <textarea class="text-input" id="textInput" placeholder="Paste or type your study material here. The more detailed your text, the better the questions!"></textarea>
-            <button class="btn" id="generateQuestions">Generate Quiz</button>
+            <div class="step-title">
+                <div class="step-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <span data-translate="step4_title">Paste your study text</span>
+            </div>
+            <textarea class="text-input" id="textInput" data-translate-placeholder="text_placeholder" placeholder="Paste or type your study material here. The more detailed your text, the better the questions!"></textarea>
+            <button class="btn" id="generateQuestions">
+                <i class="fas fa-magic"></i>
+                <span data-translate="generate_quiz">Generate Quiz</span>
+            </button>
         </div>
 
-        <!-- Step 4: PDF Input -->
+        <!-- Step 5: PDF Input -->
         <div class="card step" id="step5">
-            <div class="step-title">Upload PDF Document</div>
+            <div class="step-title">
+                <div class="step-icon">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <span data-translate="step5_title">Upload PDF Document</span>
+            </div>
             <div class="file-input-container">
                 <input type="file" class="file-input" id="pdfInput" accept=".pdf">
-                <label for="pdfInput" class="file-input-label">Choose PDF File</label>
-                <div id="fileName" style="margin-top: 10px; color: var(--tg-theme-hint-color, #999999);"></div>
+                <label for="pdfInput" class="file-input-label">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span data-translate="choose_pdf">Choose PDF File</span>
+                </label>
+                <div id="fileName" style="margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;"></div>
             </div>
-            <input type="text" class="page-range-input" id="pageRange" placeholder="Page range (e.g., 1-5 or 3)">
-            <button class="btn" id="processPdf">Process PDF</button>
+            <input type="text" class="page-range-input" id="pageRange" data-translate-placeholder="page_range_placeholder" placeholder="Page range (e.g., 1-5 or 3)">
+            <button class="btn" id="processPdf">
+                <i class="fas fa-cogs"></i>
+                <span data-translate="process_pdf">Process PDF</span>
+            </button>
         </div>
 
         <!-- Loading State -->
@@ -624,9 +1128,119 @@
 
         <!-- Error/Success Messages -->
         <div id="messageContainer"></div>
+        </div>
     </div>
 
     <script>
+        // Translation object
+        const translations = {
+            en: {
+                welcome_title: "AI-Powered Quiz Generator",
+                welcome_subtitle: "Transform your study materials into interactive quizzes with advanced AI technology",
+                step1_title: "Choose Quiz Creator",
+                model1_title: "Standard Quiz",
+                model1_desc: "With detailed explanations",
+                model2_title: "Custom Quiz",
+                model2_desc: "Choose question count",
+                step2_title: "How many questions?",
+                step3_title: "How would you like to share your materials?",
+                input_text: "Text Message",
+                input_pdf: "PDF Document",
+                step4_title: "Paste your study text",
+                text_placeholder: "Paste or type your study material here. The more detailed your text, the better the questions!",
+                step5_title: "Upload PDF Document",
+                choose_pdf: "Choose PDF File",
+                page_range_placeholder: "Page range (e.g., 1-5 or 3)",
+                generate_quiz: "Generate Quiz",
+                process_pdf: "Process PDF",
+                continue: "Continue"
+            },
+            es: {
+                welcome_title: "Generador de Cuestionarios con IA",
+                welcome_subtitle: "Transforma tus materiales de estudio en cuestionarios interactivos con tecnología de IA avanzada",
+                step1_title: "Elige el Creador de Cuestionarios",
+                model1_title: "Cuestionario Estándar",
+                model1_desc: "Con explicaciones detalladas",
+                model2_title: "Cuestionario Personalizado",
+                model2_desc: "Elige el número de preguntas",
+                step2_title: "¿Cuántas preguntas?",
+                step3_title: "¿Cómo te gustaría compartir tus materiales?",
+                input_text: "Mensaje de Texto",
+                input_pdf: "Documento PDF",
+                step4_title: "Pega tu texto de estudio",
+                text_placeholder: "Pega o escribe tu material de estudio aquí. ¡Cuanto más detallado sea tu texto, mejores serán las preguntas!",
+                step5_title: "Subir Documento PDF",
+                choose_pdf: "Elegir Archivo PDF",
+                page_range_placeholder: "Rango de páginas (ej., 1-5 o 3)",
+                generate_quiz: "Generar Cuestionario",
+                process_pdf: "Procesar PDF",
+                continue: "Continuar"
+            },
+            fr: {
+                welcome_title: "Générateur de Quiz IA",
+                welcome_subtitle: "Transformez vos matériaux d'étude en quiz interactifs avec une technologie IA avancée",
+                step1_title: "Choisir le Créateur de Quiz",
+                model1_title: "Quiz Standard",
+                model1_desc: "Avec des explications détaillées",
+                model2_title: "Quiz Personnalisé",
+                model2_desc: "Choisir le nombre de questions",
+                step2_title: "Combien de questions?",
+                step3_title: "Comment souhaitez-vous partager vos matériaux?",
+                input_text: "Message Texte",
+                input_pdf: "Document PDF",
+                step4_title: "Collez votre texte d'étude",
+                text_placeholder: "Collez ou tapez votre matériel d'étude ici. Plus votre texte est détaillé, meilleures seront les questions!",
+                step5_title: "Télécharger Document PDF",
+                choose_pdf: "Choisir Fichier PDF",
+                page_range_placeholder: "Plage de pages (ex., 1-5 ou 3)",
+                generate_quiz: "Générer Quiz",
+                process_pdf: "Traiter PDF",
+                continue: "Continuer"
+            },
+            de: {
+                welcome_title: "KI-Quiz-Generator",
+                welcome_subtitle: "Verwandeln Sie Ihre Studienmaterialien in interaktive Quizze mit fortschrittlicher KI-Technologie",
+                step1_title: "Quiz-Ersteller wählen",
+                model1_title: "Standard-Quiz",
+                model1_desc: "Mit detaillierten Erklärungen",
+                model2_title: "Benutzerdefiniertes Quiz",
+                model2_desc: "Anzahl der Fragen wählen",
+                step2_title: "Wie viele Fragen?",
+                step3_title: "Wie möchten Sie Ihre Materialien teilen?",
+                input_text: "Textnachricht",
+                input_pdf: "PDF-Dokument",
+                step4_title: "Fügen Sie Ihren Studientext ein",
+                text_placeholder: "Fügen Sie hier Ihr Studienmaterial ein oder tippen Sie es. Je detaillierter Ihr Text ist, desto besser werden die Fragen!",
+                step5_title: "PDF-Dokument hochladen",
+                choose_pdf: "PDF-Datei wählen",
+                page_range_placeholder: "Seitenbereich (z.B. 1-5 oder 3)",
+                generate_quiz: "Quiz generieren",
+                process_pdf: "PDF verarbeiten",
+                continue: "Weiter"
+            },
+            ar: {
+                welcome_title: "مولد الاختبارات بالذكاء الاصطناعي",
+                welcome_subtitle: "حول موادك الدراسية إلى اختبارات تفاعلية بتقنية الذكاء الاصطناعي المتقدمة",
+                step1_title: "اختر منشئ الاختبار",
+                model1_title: "اختبار قياسي",
+                model1_desc: "مع شرح مفصل",
+                model2_title: "اختبار مخصص",
+                model2_desc: "اختر عدد الأسئلة",
+                step2_title: "كم عدد الأسئلة؟",
+                step3_title: "كيف تريد مشاركة موادك؟",
+                input_text: "رسالة نصية",
+                input_pdf: "مستند PDF",
+                step4_title: "الصق نصك الدراسي",
+                text_placeholder: "الصق أو اكتب مادتك الدراسية هنا. كلما كان النص أكثر تفصيلاً، كانت الأسئلة أفضل!",
+                step5_title: "رفع مستند PDF",
+                choose_pdf: "اختر ملف PDF",
+                page_range_placeholder: "نطاق الصفحات (مثل 1-5 أو 3)",
+                generate_quiz: "إنشاء اختبار",
+                process_pdf: "معالجة PDF",
+                continue: "متابعة"
+            }
+        };
+
         class QuizApp {
             constructor() {
                 this.sessionId = this.generateSessionId();
@@ -638,9 +1252,11 @@
                 this.currentQuestionIndex = 0;
                 this.userAnswers = [];
                 this.showResults = false;
+                this.currentLanguage = 'en';
                 
                 this.initializeEventListeners();
                 this.initializeTelegramWebApp();
+                this.initializeLanguageSelector();
             }
 
             generateSessionId() {
@@ -651,6 +1267,79 @@
                 if (window.Telegram && window.Telegram.WebApp) {
                     window.Telegram.WebApp.ready();
                     window.Telegram.WebApp.expand();
+                }
+            }
+
+            initializeLanguageSelector() {
+                const languageBtn = document.getElementById('languageBtn');
+                const languageDropdown = document.getElementById('languageDropdown');
+                const currentLanguageSpan = document.getElementById('currentLanguage');
+
+                // Toggle dropdown
+                languageBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    languageDropdown.classList.toggle('show');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', () => {
+                    languageDropdown.classList.remove('show');
+                });
+
+                // Handle language selection
+                document.querySelectorAll('.language-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const lang = option.dataset.lang;
+                        this.changeLanguage(lang);
+                        languageDropdown.classList.remove('show');
+                    });
+                });
+            }
+
+            changeLanguage(lang) {
+                this.currentLanguage = lang;
+                const currentLanguageSpan = document.getElementById('currentLanguage');
+                const selectedOption = document.querySelector(`[data-lang="${lang}"]`);
+                
+                // Update current language display
+                currentLanguageSpan.textContent = selectedOption.querySelector('span').textContent;
+                
+                // Update selected state
+                document.querySelectorAll('.language-option').forEach(opt => opt.classList.remove('selected'));
+                selectedOption.classList.add('selected');
+                
+                // Translate all elements
+                this.translatePage();
+            }
+
+            translatePage() {
+                const elements = document.querySelectorAll('[data-translate]');
+                elements.forEach(element => {
+                    const key = element.dataset.translate;
+                    const translation = translations[this.currentLanguage][key];
+                    if (translation) {
+                        element.textContent = translation;
+                    }
+                });
+
+                // Translate placeholders
+                const placeholderElements = document.querySelectorAll('[data-translate-placeholder]');
+                placeholderElements.forEach(element => {
+                    const key = element.dataset.translatePlaceholder;
+                    const translation = translations[this.currentLanguage][key];
+                    if (translation) {
+                        element.placeholder = translation;
+                    }
+                });
+
+                // Update RTL for Arabic
+                if (this.currentLanguage === 'ar') {
+                    document.documentElement.dir = 'rtl';
+                    document.documentElement.lang = 'ar';
+                } else {
+                    document.documentElement.dir = 'ltr';
+                    document.documentElement.lang = this.currentLanguage;
                 }
             }
 
