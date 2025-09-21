@@ -194,15 +194,18 @@
             display: flex;
             gap: 12px;
             margin-top: 20px;
+            align-items: center;
         }
 
         .step-navigation .btn {
             flex: 1;
+            min-width: 0;
         }
 
         .step-navigation .btn-secondary {
             flex: 0 0 auto;
-            min-width: 120px;
+            min-width: 100px;
+            max-width: 120px;
         }
 
         .model-options {
@@ -961,10 +964,6 @@
                     <i class="fab fa-telegram"></i>
                     <span data-en="Send to Telegram Chat" data-ar="إرسال إلى دردشة تليجرام">Send to Telegram Chat</span>
                 </button>
-                <button class="btn btn-secondary" id="testResults" style="display: none;">
-                    <i class="fas fa-test-tube"></i>
-                    <span>Test Results</span>
-                </button>
             </div>
             
             <div class="question-card" id="questionCard">
@@ -980,7 +979,7 @@
                         <i class="fas fa-arrow-left"></i>
                         <span data-en="Previous" data-ar="السابق">Previous</span>
                     </button>
-                    <button class="quiz-btn quiz-btn-primary" id="nextQuestion">
+                    <button class="quiz-btn quiz-btn-primary" id="nextQuestion" style="display: none;">
                         <i class="fas fa-arrow-right"></i>
                         <span data-en="Next" data-ar="التالي">Next</span>
                     </button>
@@ -1205,14 +1204,8 @@
 
                 // Quiz navigation
                 document.getElementById('nextQuestion').addEventListener('click', (e) => {
-                    console.log('Next/Finish button clicked');
-                    console.log('Button disabled?', e.target.disabled);
-                    console.log('Current question index:', this.currentQuestionIndex);
-                    console.log('Total questions:', this.questions.length);
-                    
                     // Prevent action if button is disabled
                     if (e.target.disabled) {
-                        console.log('Button is disabled, ignoring click');
                         return;
                     }
                     
@@ -1232,11 +1225,6 @@
                     this.sendToTelegram();
                 });
 
-                // Test results button (for debugging)
-                document.getElementById('testResults').addEventListener('click', () => {
-                    console.log('Test results button clicked');
-                    this.showResults();
-                });
             }
 
             showStep(stepNumber) {
@@ -1411,9 +1399,6 @@
                 document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
                 document.getElementById('quizContainer').classList.add('active');
                 
-                // Show test button for debugging
-                document.getElementById('testResults').style.display = 'inline-block';
-                
                 this.displayQuestion();
             }
 
@@ -1441,16 +1426,8 @@
                 
                 // Update navigation buttons
                 document.getElementById('prevQuestion').disabled = this.currentQuestionIndex === 0;
+                document.getElementById('nextQuestion').style.display = 'none';
                 document.getElementById('nextQuestion').disabled = true;
-                
-                // Update next button text with multilingual support
-                const nextButton = document.getElementById('nextQuestion');
-                const nextButtonText = nextButton.querySelector('span');
-                if (this.currentQuestionIndex === this.questions.length - 1) {
-                    nextButtonText.textContent = this.currentLanguage === 'ar' ? 'إنهاء' : 'Finish';
-                } else {
-                    nextButtonText.textContent = this.currentLanguage === 'ar' ? 'التالي' : 'Next';
-                }
             }
 
             selectOption(optionIndex) {
@@ -1483,20 +1460,26 @@
                     opt.style.pointerEvents = 'none';
                 });
                 
-                // Enable next button after a short delay
-                setTimeout(() => {
-                    document.getElementById('nextQuestion').disabled = false;
-                }, 1000);
+                // Check if this is the last question
+                if (this.currentQuestionIndex === this.questions.length - 1) {
+                    // Show results after a delay
+                    setTimeout(() => {
+                        this.showResults();
+                    }, 2000);
+                } else {
+                    // Show next button for non-last questions
+                    setTimeout(() => {
+                        document.getElementById('nextQuestion').style.display = 'inline-block';
+                        document.getElementById('nextQuestion').disabled = false;
+                    }, 1000);
+                }
             }
 
             nextQuestion() {
-                console.log('nextQuestion called, current index:', this.currentQuestionIndex, 'total questions:', this.questions.length);
-                
                 if (this.currentQuestionIndex < this.questions.length - 1) {
                     this.currentQuestionIndex++;
                     this.displayQuestion();
                 } else {
-                    console.log('Showing results...');
                     this.showResults();
                 }
             }
@@ -1509,10 +1492,6 @@
             }
 
             showResults() {
-                console.log('showResults called');
-                console.log('User answers:', this.userAnswers);
-                console.log('Questions:', this.questions);
-                
                 const correctAnswers = this.userAnswers.filter((answer, index) => 
                     answer === this.questions[index].correct
                 ).length;
@@ -1520,8 +1499,6 @@
                 const score = correctAnswers;
                 const total = this.questions.length;
                 const percentage = Math.round((score / total) * 100);
-                
-                console.log('Score:', score, 'Total:', total, 'Percentage:', percentage);
                 
                 document.getElementById('finalScore').textContent = `${score}/${total}`;
                 
@@ -1537,10 +1514,6 @@
                 // Hide quiz container and show results
                 document.getElementById('quizContainer').classList.remove('active');
                 document.getElementById('resultsContainer').classList.add('active');
-                
-                console.log('Results container should now be active');
-                console.log('Quiz container active?', document.getElementById('quizContainer').classList.contains('active'));
-                console.log('Results container active?', document.getElementById('resultsContainer').classList.contains('active'));
             }
 
             restartQuiz() {
