@@ -1,308 +1,339 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RefOo Quiz Maker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary-color: #f1f5f9;
-            --accent-color: #10b981;
-            --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-muted: #94a3b8;
-            --border-color: #e2e8f0;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --radius-2xl: 1.5rem;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --font-english: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-arabic: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
+            --animation-duration: 0.3s;
+            --animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, var(--tg-theme-bg-color, var(--bg-secondary)) 0%, var(--tg-theme-secondary-bg-color, #f1f5f9) 100%);
-            color: var(--tg-theme-text-color, var(--text-primary));
+            font-family: var(--font-english);
+            background: linear-gradient(135deg, var(--tg-theme-bg-color, #f8f9fa) 0%, var(--tg-theme-secondary-bg-color, #e9ecef) 100%);
+            color: var(--tg-theme-text-color, #212529);
             line-height: 1.6;
-            padding: 0;
+            padding: 16px;
             min-height: 100vh;
             margin: 0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            transition: all var(--animation-duration) var(--animation-easing);
+        }
+
+        body[dir="rtl"] {
+            font-family: var(--font-arabic);
         }
 
         .container {
-            max-width: 480px;
+            max-width: 600px;
             margin: 0 auto;
-            padding: 1rem;
-            min-height: 100vh;
+            animation: fadeInUp 0.6s var(--animation-easing);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .language-selector {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1000;
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-radius: 25px;
+            padding: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
             display: flex;
-            flex-direction: column;
+            gap: 4px;
+            animation: slideInRight 0.5s var(--animation-easing);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: transparent;
+            color: var(--tg-theme-text-color, #000000);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--animation-duration) var(--animation-easing);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lang-btn:hover {
+            background: var(--tg-theme-button-color, #007bff);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .lang-btn.active {
+            background: var(--tg-theme-button-color, #007bff);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 2rem;
-            padding: 1.5rem 0;
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s var(--animation-easing);
         }
 
         .header h1 {
-            font-size: clamp(1.75rem, 4vw, 2.25rem);
-            margin-bottom: 0.75rem;
-            color: var(--tg-theme-text-color, var(--text-primary));
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: #000000;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--tg-theme-button-color, var(--primary-color)), var(--primary-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.025em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
 
         .header p {
-            color: var(--tg-theme-hint-color, var(--text-secondary));
-            font-size: 1rem;
-            font-weight: 400;
-            max-width: 320px;
-            margin: 0 auto;
+            color: var(--tg-theme-hint-color, #999999);
+            font-size: 16px;
         }
 
         .card {
-            background: var(--tg-theme-secondary-bg-color, var(--bg-primary));
-            border-radius: var(--radius-2xl);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--tg-theme-section-separator-color, var(--border-color));
-            box-shadow: var(--shadow-md);
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             backdrop-filter: blur(10px);
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
+            transition: all var(--animation-duration) var(--animation-easing);
+            animation: slideInUp 0.5s var(--animation-easing);
         }
 
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-            opacity: 0;
-            transition: opacity 0.2s ease;
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .card:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .card:hover::before {
-            opacity: 1;
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
         .step {
             display: none;
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all var(--animation-duration) var(--animation-easing);
         }
 
         .step.active {
             display: block;
+            opacity: 1;
+            transform: translateX(0);
+            animation: slideInFromRight 0.4s var(--animation-easing);
+        }
+
+        @keyframes slideInFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .step-title {
-            font-size: 1.25rem;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--tg-theme-text-color, var(--text-primary));
-            text-align: center;
+            margin-bottom: 15px;
+            color: var(--tg-theme-text-color, #000000);
         }
 
         .model-options {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .model-btn {
-            padding: 1rem 1.25rem;
-            border: 2px solid var(--tg-theme-button-color, var(--primary-color));
-            border-radius: var(--radius-lg);
+            padding: 15px;
+            border: 2px solid var(--tg-theme-button-color, #007bff);
+            border-radius: 8px;
             background: transparent;
-            color: var(--tg-theme-button-color, var(--primary-color));
-            font-size: 0.875rem;
+            color: var(--tg-theme-button-color, #007bff);
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all var(--animation-duration) var(--animation-easing);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
             text-align: center;
-            position: relative;
-            overflow: hidden;
         }
 
-        .model-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.3s ease;
-        }
-
-        .model-btn:hover::before {
-            left: 100%;
+        .model-btn i {
+            font-size: 24px;
+            margin-bottom: 8px;
         }
 
         .model-btn:hover {
-            background: var(--tg-theme-button-color, var(--primary-color));
+            background: var(--tg-theme-button-color, #007bff);
             color: white;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
         .model-btn.selected {
-            background: var(--tg-theme-button-color, var(--primary-color));
+            background: var(--tg-theme-button-color, #007bff);
             color: white;
-            box-shadow: var(--shadow-md);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
         .question-count-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .count-btn {
-            padding: 0.875rem 0.5rem;
-            border: 1px solid var(--tg-theme-section-separator-color, var(--border-color));
-            border-radius: var(--radius-md);
-            background: var(--tg-theme-bg-color, var(--bg-primary));
-            color: var(--tg-theme-text-color, var(--text-primary));
-            font-size: 0.875rem;
-            font-weight: 500;
+            padding: 12px;
+            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            border-radius: 6px;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all var(--animation-duration) var(--animation-easing);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
             text-align: center;
         }
 
+        .count-btn i {
+            font-size: 18px;
+        }
+
         .count-btn:hover {
-            background: var(--tg-theme-secondary-bg-color, var(--secondary-color));
-            border-color: var(--primary-color);
-            transform: translateY(-1px);
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            transform: translateY(-1px) scale(1.02);
         }
 
         .count-btn.selected {
-            background: var(--tg-theme-button-color, var(--primary-color));
+            background: var(--tg-theme-button-color, #007bff);
             color: white;
-            border-color: var(--tg-theme-button-color, var(--primary-color));
-            box-shadow: var(--shadow-sm);
+            border-color: var(--tg-theme-button-color, #007bff);
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
         }
 
         .input-type-options {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .input-btn {
-            padding: 1rem 1.25rem;
-            border: 2px solid var(--tg-theme-button-color, var(--primary-color));
-            border-radius: var(--radius-lg);
+            padding: 15px;
+            border: 2px solid var(--tg-theme-button-color, #007bff);
+            border-radius: 8px;
             background: transparent;
-            color: var(--tg-theme-button-color, var(--primary-color));
-            font-size: 0.875rem;
+            color: var(--tg-theme-button-color, #007bff);
+            font-size: 14px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all var(--animation-duration) var(--animation-easing);
             text-align: center;
-            position: relative;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
 
-        .input-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.3s ease;
-        }
-
-        .input-btn:hover::before {
-            left: 100%;
+        .input-btn i {
+            font-size: 24px;
         }
 
         .input-btn:hover {
-            background: var(--tg-theme-button-color, var(--primary-color));
+            background: var(--tg-theme-button-color, #007bff);
             color: white;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
         .input-btn.selected {
-            background: var(--tg-theme-button-color, var(--primary-color));
+            background: var(--tg-theme-button-color, #007bff);
             color: white;
-            box-shadow: var(--shadow-md);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
         }
 
         .text-input {
             width: 100%;
-            min-height: 180px;
-            padding: 1rem;
-            border: 1px solid var(--tg-theme-section-separator-color, var(--border-color));
-            border-radius: var(--radius-lg);
-            background: var(--tg-theme-bg-color, var(--bg-primary));
-            color: var(--tg-theme-text-color, var(--text-primary));
-            font-size: 0.875rem;
+            min-height: 200px;
+            padding: 15px;
+            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            border-radius: 8px;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            font-size: 14px;
             resize: vertical;
             font-family: inherit;
-            transition: all 0.2s ease;
-            line-height: 1.5;
-        }
-
-        .text-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
         .file-input-container {
             text-align: center;
-            padding: 2rem 1rem;
-            border: 2px dashed var(--tg-theme-section-separator-color, var(--border-color));
-            border-radius: var(--radius-lg);
-            margin-bottom: 1rem;
-            transition: all 0.2s ease;
-            background: var(--bg-secondary);
-        }
-
-        .file-input-container:hover {
-            border-color: var(--primary-color);
-            background: rgba(99, 102, 241, 0.05);
+            padding: 20px;
+            border: 2px dashed var(--tg-theme-section-separator-color, #e1e5e9);
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
 
         .file-input {
@@ -311,54 +342,43 @@
 
         .file-input-label {
             display: inline-block;
-            padding: 0.75rem 1.5rem;
-            background: var(--tg-theme-button-color, var(--primary-color));
+            padding: 10px 20px;
+            background: var(--tg-theme-button-color, #007bff);
             color: white;
-            border-radius: var(--radius-md);
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .file-input-label:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
+            font-size: 14px;
         }
 
         .page-range-input {
             width: 100%;
-            padding: 0.875rem;
-            border: 1px solid var(--tg-theme-section-separator-color, var(--border-color));
-            border-radius: var(--radius-md);
-            background: var(--tg-theme-bg-color, var(--bg-primary));
-            color: var(--tg-theme-text-color, var(--text-primary));
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-            transition: all 0.2s ease;
-        }
-
-        .page-range-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            padding: 12px;
+            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            border-radius: 6px;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            font-size: 14px;
+            margin-bottom: 15px;
         }
 
         .btn {
             width: 100%;
-            padding: 1rem 1.5rem;
-            background: linear-gradient(135deg, var(--tg-theme-button-color, var(--primary-color)) 0%, var(--primary-dark) 100%);
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--tg-theme-button-color, #007bff) 0%, #0056b3 100%);
             color: white;
             border: none;
-            border-radius: var(--radius-xl);
-            font-size: 1rem;
+            border-radius: 12px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: var(--shadow-md);
+            transition: all var(--animation-duration) var(--animation-easing);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
             position: relative;
             overflow: hidden;
-            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn::before {
@@ -369,7 +389,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.3s ease;
+            transition: left 0.5s var(--animation-easing);
         }
 
         .btn:hover::before {
@@ -377,19 +397,29 @@
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: translateY(-1px) scale(0.98);
         }
 
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+        }
+
+        .btn i {
+            font-size: 18px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .btn-secondary {
@@ -443,7 +473,6 @@
 
         .quiz-container {
             display: none;
-            flex: 1;
         }
 
         .quiz-container.active {
@@ -451,28 +480,26 @@
         }
 
         .question-card {
-            background: var(--tg-theme-secondary-bg-color, var(--bg-primary));
-            border-radius: var(--radius-2xl);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--tg-theme-section-separator-color, var(--border-color));
-            box-shadow: var(--shadow-md);
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             backdrop-filter: blur(10px);
         }
 
         .question-number {
-            font-size: 0.875rem;
-            color: var(--tg-theme-hint-color, var(--text-muted));
-            margin-bottom: 0.75rem;
-            font-weight: 500;
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+            margin-bottom: 10px;
         }
 
         .question-text {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 1.25rem;
-            color: var(--tg-theme-text-color, var(--text-primary));
-            line-height: 1.5;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--tg-theme-text-color, #000000);
         }
 
         .options {
@@ -480,18 +507,16 @@
         }
 
         .option {
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border: 2px solid var(--tg-theme-section-separator-color, var(--border-color));
-            border-radius: var(--radius-lg);
-            background: var(--tg-theme-bg-color, var(--bg-primary));
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 2px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            border-radius: 12px;
+            background: var(--tg-theme-bg-color, #ffffff);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             font-weight: 500;
             position: relative;
             overflow: hidden;
-            font-size: 0.875rem;
-            line-height: 1.5;
         }
 
         .option::before {
@@ -501,8 +526,8 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
-            transition: left 0.3s ease;
+            background: linear-gradient(90deg, transparent, rgba(0, 123, 255, 0.1), transparent);
+            transition: left 0.5s;
         }
 
         .option:hover::before {
@@ -510,29 +535,26 @@
         }
 
         .option:hover {
-            background: var(--tg-theme-secondary-bg-color, var(--secondary-color));
-            border-color: var(--primary-color);
-            transform: translateY(-1px);
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
         }
 
         .option.selected {
-            background: var(--tg-theme-button-color, var(--primary-color));
+            background: var(--tg-theme-button-color, #007bff);
             color: white;
-            border-color: var(--tg-theme-button-color, var(--primary-color));
-            box-shadow: var(--shadow-sm);
+            border-color: var(--tg-theme-button-color, #007bff);
         }
 
         .option.correct {
-            background: var(--accent-color);
+            background: #4caf50;
             color: white;
-            border-color: var(--accent-color);
+            border-color: #4caf50;
             animation: correctPulse 0.6s ease-in-out;
         }
 
         .option.incorrect {
-            background: var(--danger-color);
+            background: #f44336;
             color: white;
-            border-color: var(--danger-color);
+            border-color: #f44336;
             animation: incorrectShake 0.6s ease-in-out;
         }
 
@@ -552,279 +574,371 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 1.5rem;
-            padding: 1rem 0;
+            margin-top: 20px;
         }
 
         .quiz-actions {
             display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
         .telegram-poll-btn {
             background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
             color: white;
             border: none;
-            border-radius: var(--radius-lg);
-            padding: 0.875rem 1.25rem;
-            font-size: 0.875rem;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            flex: 1;
-            justify-content: center;
+            gap: 8px;
         }
 
         .telegram-poll-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
         }
 
         .telegram-poll-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
         .quiz-progress {
-            font-size: 0.875rem;
-            color: var(--tg-theme-hint-color, var(--text-muted));
-            font-weight: 500;
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
         }
 
         .quiz-buttons {
             display: flex;
-            gap: 0.75rem;
+            gap: 10px;
         }
 
         .quiz-btn {
-            padding: 0.75rem 1.25rem;
+            padding: 10px 20px;
             border: none;
-            border-radius: var(--radius-md);
-            font-size: 0.875rem;
-            font-weight: 500;
+            border-radius: 6px;
+            font-size: 14px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .quiz-btn-primary {
-            background: var(--tg-theme-button-color, var(--primary-color));
+            background: var(--tg-theme-button-color, #007bff);
             color: white;
         }
 
-        .quiz-btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
         .quiz-btn-secondary {
-            background: var(--tg-theme-secondary-bg-color, var(--secondary-color));
-            color: var(--tg-theme-text-color, var(--text-primary));
-            border: 1px solid var(--tg-theme-section-separator-color, var(--border-color));
-        }
-
-        .quiz-btn-secondary:hover {
-            background: var(--border-color);
-            transform: translateY(-1px);
+            background: var(--tg-theme-secondary-bg-color, #f8f9fa);
+            color: var(--tg-theme-text-color, #000000);
+            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
         }
 
         .results-container {
             display: none;
             text-align: center;
-            padding: 2rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            padding: 20px;
         }
 
         .results-container.active {
-            display: flex;
+            display: block;
         }
 
         .score {
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            font-weight: 700;
-            color: var(--tg-theme-button-color, var(--primary-color));
-            margin-bottom: 1rem;
-            line-height: 1;
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #007bff);
+            margin-bottom: 10px;
         }
 
         .score-text {
-            font-size: 1.25rem;
-            color: var(--tg-theme-text-color, var(--text-primary));
-            margin-bottom: 2rem;
-            font-weight: 500;
+            font-size: 18px;
+            color: var(--tg-theme-text-color, #000000);
+            margin-bottom: 20px;
         }
 
         .hidden {
             display: none !important;
         }
 
-        /* Enhanced Mobile Responsiveness */
-        @media (max-width: 480px) {
-            .container {
-                padding: 0.75rem;
+        /* RTL Support */
+        body[dir="rtl"] .language-selector {
+            right: auto;
+            left: 16px;
+        }
+
+        body[dir="rtl"] .header h1 {
+            flex-direction: row-reverse;
+        }
+
+        body[dir="rtl"] .btn {
+            flex-direction: row-reverse;
+        }
+
+        body[dir="rtl"] .quiz-navigation {
+            flex-direction: row-reverse;
+        }
+
+        body[dir="rtl"] .quiz-buttons {
+            flex-direction: row-reverse;
+        }
+
+        body[dir="rtl"] .telegram-poll-btn {
+            flex-direction: row-reverse;
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--animation-duration) var(--animation-easing);
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-content {
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            animation: bounceIn 0.5s var(--animation-easing);
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
             }
-            
-            .header {
-                margin-bottom: 1.5rem;
-                padding: 1rem 0;
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
             }
-            
-            .card {
-                padding: 1.25rem;
-                margin-bottom: 0.75rem;
+            70% {
+                transform: scale(0.9);
             }
-            
-            .question-count-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.5rem;
-            }
-            
-            .count-btn {
-                padding: 0.75rem 0.25rem;
-                font-size: 0.8rem;
-            }
-            
-            .quiz-navigation {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: stretch;
-            }
-            
-            .quiz-buttons {
-                justify-content: center;
-            }
-            
-            .telegram-poll-btn {
-                padding: 1rem;
-                font-size: 0.9rem;
+            100% {
+                opacity: 1;
+                transform: scale(1);
             }
         }
 
-        @media (max-width: 360px) {
-            .question-count-grid {
+        @media (max-width: 480px) {
+            .model-options,
+            .input-type-options {
                 grid-template-columns: 1fr;
             }
             
-            .quiz-buttons {
-                flex-direction: column;
+            .question-count-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
-        }
 
-        /* Touch-friendly improvements */
-        @media (hover: none) and (pointer: coarse) {
-            .option, .model-btn, .input-btn, .count-btn {
-                min-height: 48px;
+            .language-selector {
+                top: 8px;
+                right: 8px;
+                left: auto;
             }
-            
-            .btn, .quiz-btn, .telegram-poll-btn {
-                min-height: 48px;
+
+            body[dir="rtl"] .language-selector {
+                left: 8px;
+                right: auto;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <button class="lang-btn active" data-lang="en">
+            <i class="fas fa-globe"></i>
+            English
+        </button>
+        <button class="lang-btn" data-lang="ar">
+            <i class="fas fa-globe"></i>
+            العربية
+        </button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div id="loadingText">Processing your request...</div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>🎯 RefOo Quiz Maker</h1>
-            <p>Transform your study materials into interactive quizzes</p>
+            <h1>
+                <i class="fas fa-bullseye"></i>
+                <span data-en="RefOo Quiz Maker" data-ar="صانع اختبارات ريفو">RefOo Quiz Maker</span>
+            </h1>
+            <p data-en="Transform your study materials into interactive quizzes" data-ar="حول موادك الدراسية إلى اختبارات تفاعلية">Transform your study materials into interactive quizzes</p>
         </div>
 
         <!-- Step 1: Model Selection -->
         <div class="card step active" id="step1">
-            <div class="step-title">Choose Quiz Creator</div>
+            <div class="step-title" data-en="Choose AI Model" data-ar="اختر نموذج الذكاء الاصطناعي">Choose AI Model</div>
             <div class="model-options">
                 <button class="model-btn" data-model="1">
-                    🧠 Standard Quiz<br>
-                    <small>With explanations</small>
+                    <i class="fas fa-brain"></i>
+                    <div>
+                        <div data-en="Standard Quiz" data-ar="اختبار قياسي">Standard Quiz</div>
+                        <small data-en="With explanations" data-ar="مع التفسيرات">With explanations</small>
+                    </div>
                 </button>
                 <button class="model-btn" data-model="2">
-                    ✨ Custom Quiz<br>
-                    <small>Choose question count</small>
+                    <i class="fas fa-magic"></i>
+                    <div>
+                        <div data-en="Custom Quiz" data-ar="اختبار مخصص">Custom Quiz</div>
+                        <small data-en="Choose question count" data-ar="اختر عدد الأسئلة">Choose question count</small>
+                    </div>
                 </button>
             </div>
-            <button class="btn" id="nextStep1" disabled>Continue</button>
+            <button class="btn" id="nextStep1" disabled>
+                <i class="fas fa-arrow-right"></i>
+                <span data-en="Continue" data-ar="متابعة">Continue</span>
+            </button>
         </div>
 
         <!-- Step 2: Question Count (Model 2 only) -->
         <div class="card step" id="step2">
-            <div class="step-title">How many questions?</div>
+            <div class="step-title" data-en="How many questions?" data-ar="كم عدد الأسئلة؟">How many questions?</div>
             <div class="question-count-grid">
-                <button class="count-btn" data-count="5">5 Questions</button>
-                <button class="count-btn" data-count="10">10 Questions</button>
-                <button class="count-btn" data-count="15">15 Questions</button>
-                <button class="count-btn" data-count="20">20 Questions</button>
-                <button class="count-btn" data-count="25">25 Questions</button>
-                <button class="count-btn" data-count="30">30 Questions</button>
+                <button class="count-btn" data-count="5">
+                    <i class="fas fa-hashtag"></i>
+                    <span data-en="5 Questions" data-ar="5 أسئلة">5 Questions</span>
+                </button>
+                <button class="count-btn" data-count="10">
+                    <i class="fas fa-hashtag"></i>
+                    <span data-en="10 Questions" data-ar="10 أسئلة">10 Questions</span>
+                </button>
+                <button class="count-btn" data-count="15">
+                    <i class="fas fa-hashtag"></i>
+                    <span data-en="15 Questions" data-ar="15 سؤال">15 Questions</span>
+                </button>
+                <button class="count-btn" data-count="20">
+                    <i class="fas fa-hashtag"></i>
+                    <span data-en="20 Questions" data-ar="20 سؤال">20 Questions</span>
+                </button>
+                <button class="count-btn" data-count="25">
+                    <i class="fas fa-hashtag"></i>
+                    <span data-en="25 Questions" data-ar="25 سؤال">25 Questions</span>
+                </button>
+                <button class="count-btn" data-count="30">
+                    <i class="fas fa-hashtag"></i>
+                    <span data-en="30 Questions" data-ar="30 سؤال">30 Questions</span>
+                </button>
             </div>
-            <button class="btn" id="nextStep2" disabled>Continue</button>
+            <button class="btn" id="nextStep2" disabled>
+                <i class="fas fa-arrow-right"></i>
+                <span data-en="Continue" data-ar="متابعة">Continue</span>
+            </button>
         </div>
 
         <!-- Step 3: Input Type -->
         <div class="card step" id="step3">
-            <div class="step-title">How would you like to share your materials?</div>
+            <div class="step-title" data-en="How would you like to share your materials?" data-ar="كيف تريد مشاركة موادك؟">How would you like to share your materials?</div>
             <div class="input-type-options">
                 <button class="input-btn" data-type="text">
-                    📄 Text Message
+                    <i class="fas fa-file-text"></i>
+                    <span data-en="Text Message" data-ar="رسالة نصية">Text Message</span>
                 </button>
                 <button class="input-btn" data-type="pdf">
-                    📚 PDF Document
+                    <i class="fas fa-file-pdf"></i>
+                    <span data-en="PDF Document" data-ar="مستند PDF">PDF Document</span>
                 </button>
             </div>
-            <button class="btn" id="nextStep3" disabled>Continue</button>
+            <button class="btn" id="nextStep3" disabled>
+                <i class="fas fa-arrow-right"></i>
+                <span data-en="Continue" data-ar="متابعة">Continue</span>
+            </button>
         </div>
 
         <!-- Step 4: Text Input -->
         <div class="card step" id="step4">
-            <div class="step-title">Paste your study text</div>
-            <textarea class="text-input" id="textInput" placeholder="Paste or type your study material here. The more detailed your text, the better the questions!"></textarea>
-            <button class="btn" id="generateQuestions">Generate Quiz</button>
+            <div class="step-title" data-en="Paste your study text" data-ar="الصق نصك الدراسي">Paste your study text</div>
+            <textarea class="text-input" id="textInput" 
+                data-placeholder-en="Paste or type your study material here. The more detailed your text, the better the questions!"
+                data-placeholder-ar="الصق أو اكتب مادتك الدراسية هنا. كلما كان النص أكثر تفصيلاً، كانت الأسئلة أفضل!"
+                placeholder="Paste or type your study material here. The more detailed your text, the better the questions!"></textarea>
+            <button class="btn" id="generateQuestions">
+                <i class="fas fa-magic"></i>
+                <span data-en="Generate Quiz" data-ar="إنشاء اختبار">Generate Quiz</span>
+            </button>
         </div>
 
         <!-- Step 4: PDF Input -->
         <div class="card step" id="step5">
-            <div class="step-title">Upload PDF Document</div>
+            <div class="step-title" data-en="Upload PDF Document" data-ar="رفع مستند PDF">Upload PDF Document</div>
             <div class="file-input-container">
                 <input type="file" class="file-input" id="pdfInput" accept=".pdf">
-                <label for="pdfInput" class="file-input-label">Choose PDF File</label>
+                <label for="pdfInput" class="file-input-label">
+                    <i class="fas fa-upload"></i>
+                    <span data-en="Choose PDF File" data-ar="اختر ملف PDF">Choose PDF File</span>
+                </label>
                 <div id="fileName" style="margin-top: 10px; color: var(--tg-theme-hint-color, #999999);"></div>
             </div>
-            <input type="text" class="page-range-input" id="pageRange" placeholder="Page range (e.g., 1-5 or 3)">
-            <button class="btn" id="processPdf">Process PDF</button>
+            <input type="text" class="page-range-input" id="pageRange" 
+                data-placeholder-en="Page range (e.g., 1-5 or 3)"
+                data-placeholder-ar="نطاق الصفحات (مثل: 1-5 أو 3)"
+                placeholder="Page range (e.g., 1-5 or 3)">
+            <button class="btn" id="processPdf">
+                <i class="fas fa-cogs"></i>
+                <span data-en="Process PDF" data-ar="معالجة PDF">Process PDF</span>
+            </button>
         </div>
 
         <!-- Loading State -->
         <div class="card loading hidden" id="loadingState">
             <div class="spinner"></div>
-            <div id="loadingText">Processing your request...</div>
+            <div id="loadingText" data-en="Processing your request..." data-ar="جاري معالجة طلبك...">Processing your request...</div>
         </div>
 
         <!-- Quiz Container -->
         <div class="quiz-container" id="quizContainer">
             <div class="quiz-actions">
                 <button class="telegram-poll-btn" id="sendToTelegram">
-                    📱 Send to Telegram Chat
+                    <i class="fab fa-telegram"></i>
+                    <span data-en="Send to Telegram Chat" data-ar="إرسال إلى دردشة تليجرام">Send to Telegram Chat</span>
                 </button>
             </div>
             
             <div class="question-card" id="questionCard">
-                <div class="question-number" id="questionNumber">Question 1 of 10</div>
-                <div class="question-text" id="questionText">Loading question...</div>
+                <div class="question-number" id="questionNumber" data-en="Question 1 of 10" data-ar="سؤال 1 من 10">Question 1 of 10</div>
+                <div class="question-text" id="questionText" data-en="Loading question..." data-ar="جاري تحميل السؤال...">Loading question...</div>
                 <ul class="options" id="optionsList"></ul>
             </div>
             
             <div class="quiz-navigation">
                 <div class="quiz-progress" id="quizProgress">1 / 10</div>
                 <div class="quiz-buttons">
-                    <button class="quiz-btn quiz-btn-secondary" id="prevQuestion" disabled>Previous</button>
-                    <button class="quiz-btn quiz-btn-primary" id="nextQuestion">Next</button>
+                    <button class="quiz-btn quiz-btn-secondary" id="prevQuestion" disabled>
+                        <i class="fas fa-arrow-left"></i>
+                        <span data-en="Previous" data-ar="السابق">Previous</span>
+                    </button>
+                    <button class="quiz-btn quiz-btn-primary" id="nextQuestion">
+                        <i class="fas fa-arrow-right"></i>
+                        <span data-en="Next" data-ar="التالي">Next</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -832,8 +946,11 @@
         <!-- Results Container -->
         <div class="results-container" id="resultsContainer">
             <div class="score" id="finalScore">0/10</div>
-            <div class="score-text" id="scoreText">Great job!</div>
-            <button class="btn" id="restartQuiz">Create Another Quiz</button>
+            <div class="score-text" id="scoreText" data-en="Great job!" data-ar="عمل رائع!">Great job!</div>
+            <button class="btn" id="restartQuiz">
+                <i class="fas fa-redo"></i>
+                <span data-en="Create Another Quiz" data-ar="إنشاء اختبار آخر">Create Another Quiz</span>
+            </button>
         </div>
 
         <!-- Error/Success Messages -->
@@ -852,9 +969,11 @@
                 this.currentQuestionIndex = 0;
                 this.userAnswers = [];
                 this.showResults = false;
+                this.currentLanguage = 'en';
                 
                 this.initializeEventListeners();
                 this.initializeTelegramWebApp();
+                this.initializeLanguage();
             }
 
             generateSessionId() {
@@ -865,6 +984,71 @@
                 if (window.Telegram && window.Telegram.WebApp) {
                     window.Telegram.WebApp.ready();
                     window.Telegram.WebApp.expand();
+                }
+            }
+
+            initializeLanguage() {
+                // Set initial language
+                this.setLanguage('en');
+                
+                // Add language switcher event listeners
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const lang = e.target.dataset.lang;
+                        this.setLanguage(lang);
+                    });
+                });
+            }
+
+            setLanguage(lang) {
+                this.currentLanguage = lang;
+                
+                // Update active language button
+                document.querySelectorAll('.lang-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.lang === lang) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // Update document direction
+                document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+                document.documentElement.setAttribute('lang', lang);
+                
+                // Update all text elements
+                document.querySelectorAll('[data-en][data-ar]').forEach(element => {
+                    const text = element.getAttribute(`data-${lang}`);
+                    if (text) {
+                        element.textContent = text;
+                    }
+                });
+                
+                // Update placeholders
+                document.querySelectorAll('[data-placeholder-en][data-placeholder-ar]').forEach(element => {
+                    const placeholder = element.getAttribute(`data-placeholder-${lang}`);
+                    if (placeholder) {
+                        element.placeholder = placeholder;
+                    }
+                });
+                
+                // Update button icons for RTL
+                if (lang === 'ar') {
+                    document.querySelectorAll('.btn i.fa-arrow-right').forEach(icon => {
+                        icon.className = 'fas fa-arrow-left';
+                    });
+                    document.querySelectorAll('.quiz-btn i.fa-arrow-right').forEach(icon => {
+                        icon.className = 'fas fa-arrow-left';
+                    });
+                    document.querySelectorAll('.quiz-btn i.fa-arrow-left').forEach(icon => {
+                        icon.className = 'fas fa-arrow-right';
+                    });
+                } else {
+                    document.querySelectorAll('.btn i.fa-arrow-left').forEach(icon => {
+                        icon.className = 'fas fa-arrow-right';
+                    });
+                    document.querySelectorAll('.quiz-btn i.fa-arrow-left').forEach(icon => {
+                        icon.className = 'fas fa-arrow-right';
+                    });
                 }
             }
 
@@ -985,8 +1169,22 @@
                 messageDiv.textContent = message;
                 container.appendChild(messageDiv);
                 
+                // Add animation
+                messageDiv.style.opacity = '0';
+                messageDiv.style.transform = 'translateY(-20px)';
+                
                 setTimeout(() => {
-                    messageDiv.remove();
+                    messageDiv.style.transition = 'all 0.3s ease';
+                    messageDiv.style.opacity = '1';
+                    messageDiv.style.transform = 'translateY(0)';
+                }, 10);
+                
+                setTimeout(() => {
+                    messageDiv.style.opacity = '0';
+                    messageDiv.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        messageDiv.remove();
+                    }, 300);
                 }, 5000);
             }
 
@@ -1281,12 +1479,16 @@
             }
 
             showLoading(text) {
-                document.getElementById('loadingText').textContent = text;
-                document.getElementById('loadingState').classList.remove('hidden');
+                const loadingText = this.currentLanguage === 'ar' 
+                    ? 'جاري تحليل مادتك وصياغة الأسئلة...'
+                    : 'Analyzing your material and crafting questions...';
+                
+                document.getElementById('loadingText').textContent = loadingText;
+                document.getElementById('loadingOverlay').classList.add('show');
             }
 
             hideLoading() {
-                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('loadingOverlay').classList.remove('show');
             }
 
             async sendToTelegram() {
