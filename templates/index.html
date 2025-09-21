@@ -1138,7 +1138,11 @@
                 });
 
                 // Quiz navigation
-                document.getElementById('nextQuestion').addEventListener('click', () => {
+                document.getElementById('nextQuestion').addEventListener('click', (e) => {
+                    console.log('Next/Finish button clicked');
+                    console.log('Button disabled?', e.target.disabled);
+                    console.log('Current question index:', this.currentQuestionIndex);
+                    console.log('Total questions:', this.questions.length);
                     this.nextQuestion();
                 });
 
@@ -1356,8 +1360,15 @@
                 // Update navigation buttons
                 document.getElementById('prevQuestion').disabled = this.currentQuestionIndex === 0;
                 document.getElementById('nextQuestion').disabled = true;
-                document.getElementById('nextQuestion').textContent = 
-                    this.currentQuestionIndex === this.questions.length - 1 ? 'Finish' : 'Next';
+                
+                // Update next button text with multilingual support
+                const nextButton = document.getElementById('nextQuestion');
+                const nextButtonText = nextButton.querySelector('span');
+                if (this.currentQuestionIndex === this.questions.length - 1) {
+                    nextButtonText.textContent = this.currentLanguage === 'ar' ? 'إنهاء' : 'Finish';
+                } else {
+                    nextButtonText.textContent = this.currentLanguage === 'ar' ? 'التالي' : 'Next';
+                }
             }
 
             selectOption(optionIndex) {
@@ -1397,10 +1408,13 @@
             }
 
             nextQuestion() {
+                console.log('nextQuestion called, current index:', this.currentQuestionIndex, 'total questions:', this.questions.length);
+                
                 if (this.currentQuestionIndex < this.questions.length - 1) {
                     this.currentQuestionIndex++;
                     this.displayQuestion();
                 } else {
+                    console.log('Showing results...');
                     this.showResults();
                 }
             }
@@ -1413,6 +1427,10 @@
             }
 
             showResults() {
+                console.log('showResults called');
+                console.log('User answers:', this.userAnswers);
+                console.log('Questions:', this.questions);
+                
                 const correctAnswers = this.userAnswers.filter((answer, index) => 
                     answer === this.questions[index].correct
                 ).length;
@@ -1421,19 +1439,23 @@
                 const total = this.questions.length;
                 const percentage = Math.round((score / total) * 100);
                 
+                console.log('Score:', score, 'Total:', total, 'Percentage:', percentage);
+                
                 document.getElementById('finalScore').textContent = `${score}/${total}`;
                 
                 let scoreText = '';
-                if (percentage >= 90) scoreText = 'Excellent! 🌟';
-                else if (percentage >= 80) scoreText = 'Great job! 👏';
-                else if (percentage >= 70) scoreText = 'Good work! 👍';
-                else if (percentage >= 60) scoreText = 'Not bad! 💪';
-                else scoreText = 'Keep studying! 📚';
+                if (percentage >= 90) scoreText = this.currentLanguage === 'ar' ? 'ممتاز! 🌟' : 'Excellent! 🌟';
+                else if (percentage >= 80) scoreText = this.currentLanguage === 'ar' ? 'عمل رائع! 👏' : 'Great job! 👏';
+                else if (percentage >= 70) scoreText = this.currentLanguage === 'ar' ? 'عمل جيد! 👍' : 'Good work! 👍';
+                else if (percentage >= 60) scoreText = this.currentLanguage === 'ar' ? 'ليس سيئاً! 💪' : 'Not bad! 💪';
+                else scoreText = this.currentLanguage === 'ar' ? 'استمر في الدراسة! 📚' : 'Keep studying! 📚';
                 
                 document.getElementById('scoreText').textContent = scoreText;
                 
                 document.getElementById('quizContainer').classList.remove('active');
                 document.getElementById('resultsContainer').classList.add('active');
+                
+                console.log('Results container should now be active');
             }
 
             restartQuiz() {
