@@ -946,32 +946,41 @@
             <p data-en="Transform your study materials into interactive quizzes" data-ar="حول موادك الدراسية إلى اختبارات تفاعلية">Transform your study materials into interactive quizzes</p>
             </div>
 
-        <!-- Step 1: Model Selection -->
-        <div class="card step" id="step1">
-            <div class="step-title" data-en="Choose AI Model" data-ar="اختر نموذج الذكاء الاصطناعي">Choose AI Model</div>
-            <div class="model-options">
-                <button class="model-btn" data-model="1">
-                        <i class="fas fa-brain"></i>
-                    <div>
-                        <div data-en="Standard Quiz" data-ar="اختبار قياسي">Standard Quiz</div>
-                        <small data-en="High-quality questions with clear explanations. Best for learning." data-ar="أسئلة عالية الجودة مع تفسيرات واضحة. الأفضل للتعلم.">High-quality questions with clear explanations. Best for learning.</small>
-                    </div>
+        <!-- Step 1: Input Method (inline text or PDF) -->
+        <div class="card step active" id="step1">
+            <div class="step-title" data-en="How would you like to share your materials?" data-ar="كيف تريد مشاركة موادك؟">How would you like to share your materials?</div>
+            <div class="input-type-options">
+                <button class="input-btn" data-type="text">
+                    <i class="fas fa-file-text"></i>
+                    <span data-en="Text Message" data-ar="رسالة نصية">Text Message</span>
                 </button>
-                <button class="model-btn" data-model="2">
-                        <i class="fas fa-magic"></i>
-                    <div>
-                        <div data-en="Custom Quiz" data-ar="اختبار مخصص">Custom Quiz</div>
-                        <small data-en="Fast generation. You choose how many questions." data-ar="إنشاء سريع. أنت تختار عدد الأسئلة.">Fast generation. You choose how many questions.</small>
-                    </div>
+                <button class="input-btn" data-type="pdf">
+                    <i class="fas fa-file-pdf"></i>
+                    <span data-en="PDF Document" data-ar="مستند PDF">PDF Document</span>
                 </button>
-                <button class="model-btn" data-model="3">
-                        <i class="fas fa-layer-group"></i>
-                    <div>
-                        <div data-en="AI Generator (Type & Count)" data-ar="منشئ بالذكاء الاصطناعي (النوع والعدد)">AI Generator (Type & Count)</div>
-                        <small data-en="Pick Multiple Choice or True/False and question count in one step." data-ar="اختر (اختيار من متعدد) أو (صح/خطأ) وعدد الأسئلة في خطوة واحدة.">Pick Multiple Choice or True/False and question count in one step.</small>
-                    </div>
-                </button>
+                </div>
+            <!-- Inline text area -->
+            <div id="inlineTextArea" style="display:none; margin-top:12px;">
+                <textarea class="text-input" id="textInput"
+                    data-placeholder-en="Paste or type your study material here. The more detailed your text, the better the questions!"
+                    data-placeholder-ar="الصق أو اكتب مادتك الدراسية هنا. كلما كان النص أكثر تفصيلاً، كانت الأسئلة أفضل!"
+                    placeholder="Paste or type your study material here. The more detailed your text, the better the questions!"></textarea>
             </div>
+            <!-- Inline PDF picker -->
+            <div id="inlinePdfArea" style="display:none; margin-top:12px;">
+                <div class="file-input-container">
+                    <input type="file" class="file-input" id="pdfInput" accept=".pdf">
+                    <label for="pdfInput" class="file-input-label">
+                        <i class="fas fa-upload"></i>
+                        <span data-en="Choose PDF File" data-ar="اختر ملف PDF">Choose PDF File</span>
+                    </label>
+                    <div id="fileName" style="margin-top: 10px; color: var(--tg-theme-hint-color, #999999);"></div>
+                    </div>
+                <input type="text" class="page-range-input" id="pageRange"
+                    data-placeholder-en="Page range (e.g., 1-5 or 3)"
+                    data-placeholder-ar="نطاق الصفحات (مثل: 1-5 أو 3)"
+                    placeholder="Page range (e.g., 1-5 or 3)">
+                    </div>
             <div class="step-navigation">
             <button class="btn" id="nextStep1" disabled>
                 <i class="fas fa-arrow-right"></i>
@@ -980,48 +989,19 @@
             </div>
         </div>
 
-        <!-- Step 2: Question Count (Model 2) + Question Type (Model 3) -->
+        <!-- Step 2: Question Type -->
         <div class="card step" id="step2">
-            <div class="step-title" data-en="How many questions?" data-ar="كم عدد الأسئلة؟">How many questions?</div>
-            <div class="question-count-grid">
-                <button class="count-btn" data-count="5">
-                    <i class="fas fa-hashtag"></i>
-                    <span data-en="5 Questions" data-ar="5 أسئلة">5 Questions</span>
+            <div class="step-title" data-en="Choose question type" data-ar="اختر نوع الأسئلة">Choose question type</div>
+            <div class="input-type-options">
+                <button class="input-btn qtype-btn" data-qtype="Multiple Choice">
+                    <i class="fas fa-list"></i>
+                    <span data-en="Multiple Choice" data-ar="اختيار من متعدد">Multiple Choice</span>
                 </button>
-                <button class="count-btn" data-count="10">
-                    <i class="fas fa-hashtag"></i>
-                    <span data-en="10 Questions" data-ar="10 أسئلة">10 Questions</span>
+                <button class="input-btn qtype-btn" data-qtype="true/false">
+                    <i class="fas fa-check-double"></i>
+                    <span data-en="True / False" data-ar="صح / خطأ">True / False</span>
                 </button>
-                <button class="count-btn" data-count="15">
-                    <i class="fas fa-hashtag"></i>
-                    <span data-en="15 Questions" data-ar="15 سؤال">15 Questions</span>
-                </button>
-                <button class="count-btn" data-count="20">
-                    <i class="fas fa-hashtag"></i>
-                    <span data-en="20 Questions" data-ar="20 سؤال">20 Questions</span>
-                </button>
-                <button class="count-btn" data-count="25">
-                    <i class="fas fa-hashtag"></i>
-                    <span data-en="25 Questions" data-ar="25 سؤال">25 Questions</span>
-                </button>
-                <button class="count-btn" data-count="30">
-                    <i class="fas fa-hashtag"></i>
-                    <span data-en="30 Questions" data-ar="30 سؤال">30 Questions</span>
-                </button>
-            </div>
-            <div id="questionTypeSection" style="display:none; margin-top: 10px;">
-                <div class="step-title" style="margin-bottom:10px;" data-en="Choose question type" data-ar="اختر نوع الأسئلة">Choose question type</div>
-                <div class="input-type-options">
-                    <button class="input-btn qtype-btn" data-qtype="Multiple Choice">
-                        <i class="fas fa-list"></i>
-                        <span data-en="Multiple Choice" data-ar="اختيار من متعدد">Multiple Choice</span>
-                    </button>
-                    <button class="input-btn qtype-btn" data-qtype="true/false">
-                        <i class="fas fa-check-double"></i>
-                        <span data-en="True / False" data-ar="صح / خطأ">True / False</span>
-                    </button>
                 </div>
-            </div>
             <div class="step-navigation">
                 <button class="btn btn-secondary" id="backStep2">
                     <i class="fas fa-arrow-left"></i>
@@ -1034,17 +1014,30 @@
             </div>
         </div>
 
-        <!-- Step 1 (First): Input Type -->
-        <div class="card step active" id="step3">
-            <div class="step-title" data-en="How would you like to share your materials?" data-ar="كيف تريد مشاركة موادك؟">How would you like to share your materials?</div>
-            <div class="input-type-options">
-                <button class="input-btn" data-type="text">
-                        <i class="fas fa-file-text"></i>
-                    <span data-en="Text Message" data-ar="رسالة نصية">Text Message</span>
+        <!-- Step 3: Model Selection (if MCQ) -->
+        <div class="card step" id="step3">
+            <div class="step-title" data-en="Choose AI Model" data-ar="اختر نموذج الذكاء الاصطناعي">Choose AI Model</div>
+            <div class="model-options">
+                <button class="model-btn" data-model="1">
+                    <i class="fas fa-brain"></i>
+                    <div>
+                        <div data-en="Standard Quiz" data-ar="اختبار قياسي">Standard Quiz</div>
+                        <small data-en="With explanations" data-ar="مع التفسيرات">With explanations</small>
+                </div>
                 </button>
-                <button class="input-btn" data-type="pdf">
-                        <i class="fas fa-file-pdf"></i>
-                    <span data-en="PDF Document" data-ar="مستند PDF">PDF Document</span>
+                <button class="model-btn" data-model="2">
+                    <i class="fas fa-magic"></i>
+                    <div>
+                        <div data-en="Custom Quiz" data-ar="اختبار مخصص">Custom Quiz</div>
+                        <small data-en="Choose question count" data-ar="اختر عدد الأسئلة">Choose question count</small>
+            </div>
+                </button>
+                <button class="model-btn" data-model="3">
+                    <i class="fas fa-robot"></i>
+                    <div>
+                        <div data-en="External Generator" data-ar="مولد خارجي">External Generator</div>
+                        <small data-en="Supports MCQ & True/False" data-ar="يدعم صح/خطأ واختيار متعدد">Supports MCQ & True/False</small>
+                    </div>
                 </button>
             </div>
             <div class="step-navigation">
@@ -1056,53 +1049,34 @@
                 <i class="fas fa-arrow-right"></i>
                     <span data-en="Continue" data-ar="متابعة">Continue</span>
             </button>
+            <button class="btn" id="generateFromStep3" style="display:none;">
+                <i class="fas fa-magic"></i>
+                <span data-en="Generate Quiz" data-ar="إنشاء اختبار">Generate Quiz</span>
+            </button>
             </div>
         </div>
 
-        <!-- Step 4: Text Input -->
+        <!-- Step 4: Question Count for Model 2/3 -->
         <div class="card step" id="step4">
-            <div class="step-title" data-en="Paste your study text" data-ar="الصق نصك الدراسي">Paste your study text</div>
-            <textarea class="text-input" id="textInput" 
-                data-placeholder-en="Paste or type your study material here. The more detailed your text, the better the questions!"
-                data-placeholder-ar="الصق أو اكتب مادتك الدراسية هنا. كلما كان النص أكثر تفصيلاً، كانت الأسئلة أفضل!"
-                placeholder="Paste or type your study material here. The more detailed your text, the better the questions!"></textarea>
+            <div class="step-title" data-en="How many questions?" data-ar="كم عدد الأسئلة؟">How many questions?</div>
+            <div class="question-count-grid">
+                <button class="count-btn" data-count="5"><i class="fas fa-hashtag"></i><span>5</span></button>
+                <button class="count-btn" data-count="10"><i class="fas fa-hashtag"></i><span>10</span></button>
+                <button class="count-btn" data-count="15"><i class="fas fa-hashtag"></i><span>15</span></button>
+                <button class="count-btn" data-count="20"><i class="fas fa-hashtag"></i><span>20</span></button>
+                <button class="count-btn" data-count="25"><i class="fas fa-hashtag"></i><span>25</span></button>
+                <button class="count-btn" data-count="30"><i class="fas fa-hashtag"></i><span>30</span></button>
+                </div>
             <div class="step-navigation">
                 <button class="btn btn-secondary" id="backStep4">
                     <i class="fas fa-arrow-left"></i>
                     <span data-en="Back" data-ar="رجوع">Back</span>
                 </button>
-            <button class="btn" id="generateQuestions">
+                <button class="btn" id="generateQuestions" disabled>
                 <i class="fas fa-magic"></i>
                     <span data-en="Generate Quiz" data-ar="إنشاء اختبار">Generate Quiz</span>
             </button>
-            </div>
         </div>
-
-        <!-- Step 4: PDF Input -->
-        <div class="card step" id="step5">
-            <div class="step-title" data-en="Upload PDF Document" data-ar="رفع مستند PDF">Upload PDF Document</div>
-            <div class="file-input-container">
-                <input type="file" class="file-input" id="pdfInput" accept=".pdf">
-                <label for="pdfInput" class="file-input-label">
-                    <i class="fas fa-upload"></i>
-                    <span data-en="Choose PDF File" data-ar="اختر ملف PDF">Choose PDF File</span>
-                </label>
-                <div id="fileName" style="margin-top: 10px; color: var(--tg-theme-hint-color, #999999);"></div>
-            </div>
-            <input type="text" class="page-range-input" id="pageRange" 
-                data-placeholder-en="Page range (e.g., 1-5 or 3)"
-                data-placeholder-ar="نطاق الصفحات (مثل: 1-5 أو 3)"
-                placeholder="Page range (e.g., 1-5 or 3)">
-            <div class="step-navigation">
-                <button class="btn btn-secondary" id="backStep5">
-                    <i class="fas fa-arrow-left"></i>
-                    <span data-en="Back" data-ar="رجوع">Back</span>
-                </button>
-            <button class="btn" id="processPdf">
-                <i class="fas fa-cogs"></i>
-                    <span data-en="Process PDF" data-ar="معالجة PDF">Process PDF</span>
-            </button>
-            </div>
         </div>
 
         <!-- Loading State -->
@@ -1300,14 +1274,111 @@
             }
 
             initializeEventListeners() {
-                // Model selection
+                // Step 1: input selection inline
+                const nextStep1Btn = document.getElementById('nextStep1');
+                document.querySelectorAll('.input-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.input-btn').forEach(b => b.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.selectedInputType = e.target.dataset.type;
+                        // toggle inline areas
+                        document.getElementById('inlineTextArea').style.display = this.selectedInputType === 'text' ? 'block' : 'none';
+                        document.getElementById('inlinePdfArea').style.display = this.selectedInputType === 'pdf' ? 'block' : 'none';
+                        // validate
+                        this.validateStep1();
+                    });
+                });
+                // validate on text input
+                const textInput = document.getElementById('textInput');
+                if (textInput) {
+                    textInput.addEventListener('input', () => this.validateStep1());
+                }
+                // validate on pdf changes
+                const pdfInput = document.getElementById('pdfInput');
+                if (pdfInput) {
+                    pdfInput.addEventListener('change', (e) => {
+                        const fileName = e.target.files[0]?.name || '';
+                        document.getElementById('fileName').textContent = fileName;
+                        this.validateStep1();
+                    });
+                }
+
+                // Step 2: Question type selection
+                document.querySelectorAll('.qtype-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.qtype-btn').forEach(b => b.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.selectedQuestionType = e.target.dataset.qtype;
+                        // enable continue
+                        document.getElementById('nextStep2').disabled = false;
+                    });
+                });
+
+                // Step 3: model selection (only when MCQ)
                 document.querySelectorAll('.model-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('selected'));
-                        e.target.classList.add('selected');
-                        this.selectedModel = e.target.dataset.model;
-                        document.getElementById('nextStep1').disabled = false;
+                        e.currentTarget.classList.add('selected');
+                        this.selectedModel = e.currentTarget.dataset.model;
+                        const nextBtn = document.getElementById('nextStep3');
+                        const genBtn = document.getElementById('generateFromStep3');
+                        if (this.selectedModel === '1') {
+                            nextBtn.style.display = 'none';
+                            genBtn.style.display = 'inline-flex';
+                        } else {
+                            genBtn.style.display = 'none';
+                            nextBtn.style.display = 'inline-flex';
+                            nextBtn.disabled = false;
+                        }
                     });
+                });
+
+                // Step navigation
+                document.getElementById('nextStep1').addEventListener('click', async () => {
+                    if (this.selectedInputType === 'pdf') {
+                        // require page range and file
+                        const file = document.getElementById('pdfInput').files[0];
+                        const pageRange = (document.getElementById('pageRange').value || '').trim();
+                        if (!file || !pageRange) { this.showMessage('Please select a PDF and page range.', 'error'); return; }
+                        this.showLoading();
+                        // upload PDF to extract text
+                        const formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('session_id', this.sessionId);
+                        formData.append('page_range', pageRange);
+                        try {
+                            const resp = await fetch('/api/process-pdf', { method: 'POST', body: formData });
+                            const res = await resp.json();
+                            if (!res.success) { this.hideLoading(); this.showMessage(res.error || 'PDF error', 'error'); return; }
+                            // put extracted text into textInput and proceed
+                            document.getElementById('textInput').value = res.text || '';
+                            this.hideLoading();
+                        } catch (_) { this.hideLoading(); this.showMessage('Network error.', 'error'); return; }
+                    }
+                    this.showStep(2);
+                });
+
+                document.getElementById('nextStep2').addEventListener('click', () => {
+                    if (this.selectedQuestionType === 'true/false') {
+                        // auto-select model 3 and go to count
+                        this.selectedModel = '3';
+                        this.showStep(4);
+                    } else {
+                        // MCQ -> choose model
+                    this.showStep(3);
+                    }
+                });
+
+                document.getElementById('nextStep3').addEventListener('click', () => {
+                    // model 2 or 3 -> count selection
+                        this.showStep(4);
+                });
+
+                // Generate from step 3 (model 1)
+                document.getElementById('generateFromStep3').addEventListener('click', () => {
+                    const text = document.getElementById('textInput').value.trim();
+                    if (text.length < 30) { this.showMessage('Please provide more detailed text (at least 30 characters).', 'error'); return; }
+                    this.generateQuestions(text);
                 });
 
                 // Question count selection
@@ -1316,73 +1387,21 @@
                         document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
                         e.target.classList.add('selected');
                         this.selectedCount = parseInt(e.target.dataset.count);
-                        document.getElementById('nextStep2').disabled = false;
+                        const gen = document.getElementById('generateQuestions');
+                        if (gen) gen.disabled = false;
                     });
-                });
-
-                // Input type selection
-                document.querySelectorAll('.input-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        document.querySelectorAll('.input-btn').forEach(b => b.classList.remove('selected'));
-                        e.target.classList.add('selected');
-                        this.selectedInputType = e.target.dataset.type;
-                        console.log('Input type selected:', this.selectedInputType);
-                        document.getElementById('nextStep3').disabled = false;
-                    });
-                });
-
-                // Question type selection (model 3)
-                document.querySelectorAll('.qtype-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        document.querySelectorAll('.qtype-btn').forEach(b => b.classList.remove('selected'));
-                        e.target.classList.add('selected');
-                        this.selectedQuestionType = e.target.dataset.qtype;
-                    });
-                });
-
-                // Step navigation
-                document.getElementById('nextStep1').addEventListener('click', () => {
-                    // After selecting model, go next based on model and previously selected input type
-                    if (this.selectedModel === '2' || this.selectedModel === '3') {
-                        const qTypeSec = document.getElementById('questionTypeSection');
-                        if (this.selectedModel === '3' && qTypeSec) qTypeSec.style.display = 'block';
-                        if (this.selectedModel === '2' && qTypeSec) qTypeSec.style.display = 'none';
-                        this.showStep(2);
-                    } else if (this.selectedModel === '1') {
-                        // Go directly to input content step based on input type chosen earlier
-                        if (this.selectedInputType === 'text') {
-                            this.showStep(4);
-                        } else {
-                            this.showStep(5);
-                        }
-                    }
-                });
-
-                document.getElementById('nextStep2').addEventListener('click', () => {
-                    this.showStep(3);
-                });
-
-                document.getElementById('nextStep3').addEventListener('click', () => {
-                    // After choosing input type, move to model selection
-                    this.showStep(1);
                 });
 
                 // Back navigation
                 document.getElementById('backStep2').addEventListener('click', () => {
-                    // Back from count/type -> model selection
                     this.showStep(1);
                 });
 
                 document.getElementById('backStep3').addEventListener('click', () => {
-                    // Step 3 is first step now; keep back to no-op or go to header
-                    this.showStep(3);
+                    this.showStep(1);
                 });
 
                 document.getElementById('backStep4').addEventListener('click', () => {
-                    this.showStep(3);
-                });
-
-                document.getElementById('backStep5').addEventListener('click', () => {
                     this.showStep(3);
                 });
 
@@ -1400,23 +1419,6 @@
                 document.getElementById('pdfInput').addEventListener('change', (e) => {
                     const fileName = e.target.files[0]?.name || '';
                     document.getElementById('fileName').textContent = fileName;
-                });
-
-                document.getElementById('processPdf').addEventListener('click', () => {
-                    const fileInput = document.getElementById('pdfInput');
-                    const pageRange = document.getElementById('pageRange').value.trim();
-                    
-                    if (!fileInput.files[0]) {
-                        this.showMessage('Please select a PDF file.', 'error');
-                        return;
-                    }
-                    
-                    if (!pageRange) {
-                        this.showMessage('Please specify page range.', 'error');
-                        return;
-                    }
-                    
-                    this.processPdf(fileInput.files[0], pageRange);
                 });
 
                 // Quiz navigation
@@ -1474,6 +1476,20 @@
                     messageDiv.remove();
                     }, 200);
                 }, 3000);
+            }
+
+            validateStep1() {
+                const nextBtn = document.getElementById('nextStep1');
+                if (this.selectedInputType === 'text') {
+                    const v = (document.getElementById('textInput').value || '').trim();
+                    nextBtn.disabled = v.length < 30;
+                } else if (this.selectedInputType === 'pdf') {
+                    const hasFile = !!document.getElementById('pdfInput').files[0];
+                    const pr = (document.getElementById('pageRange').value || '').trim();
+                    nextBtn.disabled = !(hasFile && pr);
+                } else {
+                    nextBtn.disabled = true;
+                }
             }
 
             async generateQuestions(text) {
@@ -1808,6 +1824,7 @@
                 document.getElementById('nextStep1').disabled = true;
                 document.getElementById('nextStep2').disabled = true;
                 document.getElementById('nextStep3').disabled = true;
+                document.getElementById('generateFromStep3').style.display = 'none';
             }
 
             showLoading(text) {
@@ -1891,3 +1908,4 @@
     </script>
 </body>
 </html>
+
