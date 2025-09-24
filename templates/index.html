@@ -1146,7 +1146,7 @@
                 this.selectedModel = null;
                 this.selectedCount = 10;
                 this.selectedInputType = null;
-                this.selectedQuestionType = 'Multiple Choice';
+                this.selectedQuestionType = null;
                 this.questions = [];
                 this.currentQuestionIndex = 0;
                 this.userAnswers = [];
@@ -1356,6 +1356,11 @@
                         } catch (_) { this.hideLoading(); this.showMessage('Network error.', 'error'); return; }
                     }
                     this.showStep(2);
+                    // prepare Step 2: clear selection and disable continue until user selects
+                    document.querySelectorAll('.qtype-btn').forEach(b => b.classList.remove('selected'));
+                    this.selectedQuestionType = null;
+                    const ns2 = document.getElementById('nextStep2');
+                    if (ns2) ns2.disabled = true;
                 });
 
                 document.getElementById('nextStep2').addEventListener('click', () => {
@@ -1822,7 +1827,7 @@
                 this.selectedModel = null;
                 this.selectedCount = 10;
                 this.selectedInputType = null;
-                this.selectedQuestionType = 'Multiple Choice';
+                this.selectedQuestionType = null;
                 this.questions = [];
                 this.currentQuestionIndex = 0;
                 this.userAnswers = [];
