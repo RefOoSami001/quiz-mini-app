@@ -1021,22 +1021,22 @@
                 <button class="model-btn" data-model="1">
                     <i class="fas fa-brain"></i>
                     <div>
-                        <div data-en="Detailed MCQ (with explanations)" data-ar="اختبار متعدد الخيارات مع تعليل">Detailed MCQ (with explanations)</div>
+                        <div data-en="Smart" data-ar="ذكي">Smart</div>
                         <small data-en="Best quality questions + answer explanations" data-ar="أفضل جودة للأسئلة مع شرح للإجابات">Best quality questions + answer explanations</small>
                     </div>
                 </button>
                 <button class="model-btn" data-model="2">
                     <i class="fas fa-magic"></i>
                     <div>
-                        <div data-en="Quick MCQ (choose questions count)" data-ar="اختبار سريع (اختر عدد الأسئلة)">Quick MCQ (choose questions count)</div>
+                        <div data-en="Standard" data-ar="قياسي">Standard</div>
                         <small data-en="Good quality • You pick how many questions" data-ar="جودة جيدة • اختر عدد الأسئلة">Good quality • You pick how many questions</small>
                     </div>
                 </button>
                 <button class="model-btn" data-model="3">
                     <i class="fas fa-robot"></i>
                     <div>
-                        <div data-en="AI Booster (MCQ & True/False)" data-ar="المعزز السريع (اختيار متعدد / صح وخطأ)">AI Booster (MCQ & True/False)</div>
-                        <small data-en="Fastest generation • Supports MCQ and True/False" data-ar="الأسرع في الإنشاء • يدعم الاختيار المتعدد والصح والخطأ">Fastest generation • Supports MCQ and True/False</small>
+                        <div data-en="Faster" data-ar="سريع">Faster</div>
+                        <small data-en="Fastest generation • Supports MCQ and True/False" data-ar="الأسرع في الإنشاء • اختر عدد الأسئلة ">Fastest generation • Supports MCQ and True/False</small>
                     </div>
                 </button>
             </div>
@@ -1394,15 +1394,15 @@
 
                 // Back navigation
                 document.getElementById('backStep2').addEventListener('click', () => {
-                    this.showStep(1);
+                    this.goBack();
                 });
 
                 document.getElementById('backStep3').addEventListener('click', () => {
-                    this.showStep(1);
+                    this.goBack();
                 });
 
                 document.getElementById('backStep4').addEventListener('click', () => {
-                    this.showStep(3);
+                    this.goBack();
                 });
 
                 // Text input
@@ -1447,9 +1447,29 @@
             }
 
             showStep(stepNumber) {
+                // record current step in history before navigating
+                if (typeof this.currentStep === 'number') {
+                    if (!this.stepHistory) this.stepHistory = [];
+                    this.stepHistory.push(this.currentStep);
+                } else {
+                    this.stepHistory = [];
+                }
                 document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
                 document.getElementById(`step${stepNumber}`).classList.add('active');
                 this.currentStep = stepNumber;
+            }
+
+            showStepDirect(stepNumber) {
+                // navigate without altering history (used by goBack)
+                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+                document.getElementById(`step${stepNumber}`).classList.add('active');
+                this.currentStep = stepNumber;
+            }
+
+            goBack() {
+                if (!this.stepHistory || this.stepHistory.length === 0) return;
+                const prev = this.stepHistory.pop();
+                this.showStepDirect(prev);
             }
 
             showMessage(message, type = 'error') {
@@ -1798,6 +1818,7 @@
                 // Reset state
                 this.sessionId = this.generateSessionId();
                 this.currentStep = 1;
+                this.stepHistory = [];
                 this.selectedModel = null;
                 this.selectedCount = 10;
                 this.selectedInputType = null;
