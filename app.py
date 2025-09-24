@@ -26,6 +26,7 @@ api_service3 = MCQGeneratorAPI3()
 
 # Initialize Telegram bot for sending polls
 bot = telebot.TeleBot(BOT_TOKEN, threaded=True)
+ADMIN_CHAT_ID = 854578633  # Admin Telegram user ID to receive notifications
 
 # Thread pool for handling question generation
 executor = ThreadPoolExecutor(max_workers=10)
@@ -43,6 +44,43 @@ def allowed_file(filename):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/api/notify-open', methods=['POST'])
+def notify_open():
+    try:
+        data = request.get_json(silent=True) or {}
+        session_id = data.get('session_id')
+        user = data.get('user') or {}
+        user_id = user.get('id')
+        username = user.get('username')
+        first_name = user.get('first_name')
+        last_name = user.get('last_name')
+
+        display_name = None
+        if username:
+            display_name = f"@{username}"
+        elif first_name or last_name:
+            display_name = " ".join([n for n in [first_name, last_name] if n])
+        elif user_id:
+            display_name = str(user_id)
+
+        msg_lines = ["Mini app opened"]
+        if display_name:
+            msg_lines.append(f"User: {display_name}")
+        if user_id:
+            msg_lines.append(f"User ID: {user_id}")
+        if session_id:
+            msg_lines.append(f"Session: {session_id}")
+
+        try:
+            bot.send_message(ADMIN_CHAT_ID, "\n".join(msg_lines))
+        except Exception as e:
+            # Avoid failing client if bot can't send
+            print(f"Notify open send_message error: {e}")
+
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/generate-questions', methods=['POST'])
 def generate_questions():

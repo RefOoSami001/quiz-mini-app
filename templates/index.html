@@ -1168,6 +1168,15 @@
                 if (window.Telegram && window.Telegram.WebApp) {
                     window.Telegram.WebApp.ready();
                     window.Telegram.WebApp.expand();
+                    // Notify admin when mini-app opens
+                    try {
+                        const tgUser = window.Telegram.WebApp.initDataUnsafe?.user || null;
+                        fetch('/api/notify-open', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ session_id: this.sessionId, user: tgUser })
+                        }).catch(() => {});
+                    } catch (_) {}
                 }
             }
 
