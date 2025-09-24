@@ -951,29 +951,29 @@
             <div class="step-title" data-en="Choose AI Model" data-ar="اختر نموذج الذكاء الاصطناعي">Choose AI Model</div>
             <div class="model-options">
                 <button class="model-btn" data-model="1">
-                        <i class="fas fa-brain"></i>
+                    <i class="fas fa-brain"></i>
                     <div>
                         <div data-en="Standard Quiz" data-ar="اختبار قياسي">Standard Quiz</div>
-                        <small data-en="With explanations" data-ar="مع التفسيرات">With explanations</small>
+                        <small data-en="Detailed explanations for each answer" data-ar="تفسيرات مفصلة لكل إجابة">Detailed explanations for each answer</small>
                     </div>
                 </button>
                 <button class="model-btn" data-model="2">
-                        <i class="fas fa-magic"></i>
+                    <i class="fas fa-magic"></i>
                     <div>
                         <div data-en="Custom Quiz" data-ar="اختبار مخصص">Custom Quiz</div>
-                        <small data-en="Choose question count" data-ar="اختر عدد الأسئلة">Choose question count</small>
+                        <small data-en="Up to 30 questions (no explanations)" data-ar="حتى 30 سؤال (بدون تفسيرات)">Up to 30 questions (no explanations)</small>
                     </div>
                 </button>
                 <button class="model-btn" data-model="3">
-                        <i class="fas fa-question-circle"></i>
+                    <i class="fas fa-layer-group"></i>
                     <div>
-                        <div data-en="Question Type" data-ar="نوع السؤال">Question Type</div>
-                        <small data-en="Choose question type and count" data-ar="اختر نوع السؤال وعدده">Choose question type and count</small>
+                        <div data-en="Advanced Generator" data-ar="مولد متقدم">Advanced Generator</div>
+                        <small data-en="Up to 100 questions • MCQ or True/False" data-ar="حتى 100 سؤال • اختيار من متعدد أو صح/خطأ">Up to 100 questions • MCQ or True/False</small>
                     </div>
                 </button>
             </div>
             <div class="step-navigation">
-            <button class="btn" id="nextStep1" disabled>
+                <button class="btn" id="nextStep1" disabled>
                 <i class="fas fa-arrow-right"></i>
                     <span data-en="Continue" data-ar="متابعة">Continue</span>
             </button>
@@ -1009,6 +1009,7 @@
                     <span data-en="30 Questions" data-ar="30 سؤال">30 Questions</span>
                 </button>
             </div>
+            <input type="number" id="countInput" min="1" max="30" value="10" style="width:100%;padding:12px;border:1px solid var(--tg-theme-section-separator-color, #e1e5e9);border-radius:8px;margin:8px 0;" data-en-placeholder="Or enter a number" data-ar-placeholder="أو أدخل رقماً" placeholder="Or enter a number" />
             <div id="questionTypeSection" style="display:none; margin-top: 10px;">
                 <div class="step-title" style="margin-bottom:10px;" data-en="Choose question type" data-ar="اختر نوع الأسئلة">Choose question type</div>
                 <div class="input-type-options">
@@ -1320,8 +1321,22 @@
                     });
                 });
 
+                // Count input manual entry with validation
+                const countInput = document.getElementById('countInput');
+                if (countInput) {
+                    countInput.addEventListener('input', () => {
+                        const max = parseInt(countInput.max || '30');
+                        let val = parseInt(countInput.value || '0');
+                        if (isNaN(val) || val < 1) val = 1;
+                        if (val > max) val = max;
+                        countInput.value = String(val);
+                        this.selectedCount = val;
+                        document.getElementById('nextStep2').disabled = false;
+                    });
+                }
+
                 // Input type selection
-                document.querySelectorAll('.input-btn').forEach(btn => {
+                document.querySelectorAll('#step3 .input-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         document.querySelectorAll('.input-btn').forEach(b => b.classList.remove('selected'));
                         e.target.classList.add('selected');
@@ -1343,33 +1358,29 @@
                 // Step navigation
                 document.getElementById('nextStep1').addEventListener('click', () => {
                     if (this.selectedModel === '2' || this.selectedModel === '3') {
-                        // If model 3, reveal question type section
                         const qTypeSec = document.getElementById('questionTypeSection');
-                        if (this.selectedModel === '3' && qTypeSec) {
-                            qTypeSec.style.display = 'block';
-                        } else if (qTypeSec) {
-                            qTypeSec.style.display = 'none';
+                        const countInput = document.getElementById('countInput');
+                        if (this.selectedModel === '3') {
+                            if (qTypeSec) qTypeSec.style.display = 'block';
+                            if (countInput) { countInput.max = '100'; if (parseInt(countInput.value) > 100) countInput.value = '20'; }
+                        } else {
+                            if (qTypeSec) qTypeSec.style.display = 'none';
+                            if (countInput) { countInput.max = '30'; if (parseInt(countInput.value) > 30) countInput.value = '10'; }
                         }
                         this.showStep(2);
                     } else {
-                        this.showStep(3);
+                        // Model 1 goes directly to input step chosen earlier
+                        if (this.selectedInputType === 'text') this.showStep(4); else this.showStep(5);
                     }
                 });
 
                 document.getElementById('nextStep2').addEventListener('click', () => {
-                    this.showStep(3);
+                    if (this.selectedInputType === 'text') this.showStep(4); else this.showStep(5);
                 });
 
                 document.getElementById('nextStep3').addEventListener('click', () => {
-                    console.log('Selected input type:', this.selectedInputType);
-                    if (this.selectedInputType === 'text') {
-                        this.showStep(4);
-                    } else if (this.selectedInputType === 'pdf') {
-                        this.showStep(5);
-                    } else {
-                        console.log('No input type selected');
-                        this.showMessage('Please select an input type first.', 'error');
-                    }
+                    // After choosing input type, go to model selection
+                    this.showStep(1);
                 });
 
                 // Back navigation
