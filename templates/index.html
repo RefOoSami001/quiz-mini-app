@@ -1008,6 +1008,20 @@
                     <span data-en="30 Questions" data-ar="30 سؤال">30 Questions</span>
                 </button>
             </div>
+            <!-- Question type (only for Model 3) -->
+            <div id="questionTypeSection" style="display:none; margin-top: 10px;">
+                <div class="step-title" style="margin-bottom:10px;" data-en="Choose question type" data-ar="اختر نوع الأسئلة">Choose question type</div>
+                <div class="input-type-options">
+                    <button class="input-btn qtype-btn" data-qtype="Multiple Choice">
+                        <i class="fas fa-list"></i>
+                        <span data-en="Multiple Choice" data-ar="اختيار من متعدد">Multiple Choice</span>
+                    </button>
+                    <button class="input-btn qtype-btn" data-qtype="true/false">
+                        <i class="fas fa-check-double"></i>
+                        <span data-en="True / False" data-ar="صح / خطأ">True / False</span>
+                    </button>
+                </div>
+            </div>
             <div class="step-navigation">
                 <button class="btn btn-secondary" id="backStep2">
                     <i class="fas fa-arrow-left"></i>
@@ -1158,6 +1172,7 @@
                 this.selectedModel = null;
                 this.selectedCount = 10;
                 this.selectedInputType = null;
+                this.selectedQuestionType = 'Multiple Choice';
                 this.questions = [];
                 this.currentQuestionIndex = 0;
                 this.userAnswers = [];
@@ -1336,6 +1351,11 @@
                         e.target.classList.add('selected');
                         this.selectedCount = parseInt(e.target.dataset.count);
                         document.getElementById('nextStep2').disabled = false;
+                        // If model 3, reveal question type section
+                        const qTypeSec = document.getElementById('questionTypeSection');
+                        if (this.selectedModel === '3' && qTypeSec) {
+                            qTypeSec.style.display = 'block';
+                        }
                     });
                 });
 
@@ -1350,9 +1370,21 @@
                     });
                 });
 
+                // Question type selection (model 3)
+                document.querySelectorAll('.qtype-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.qtype-btn').forEach(b => b.classList.remove('selected'));
+                        e.target.classList.add('selected');
+                        this.selectedQuestionType = e.target.dataset.qtype;
+                    });
+                });
+
                 // Step navigation
                 document.getElementById('nextStep1').addEventListener('click', () => {
                     if (this.selectedModel === '2') {
+                        this.showStep(2);
+                    } else if (this.selectedModel === '3') {
+                        // Model 3 requires question type selection (reuse step2 for count, then step3 for input type, then step4/5 as usual)
                         this.showStep(2);
                     } else {
                         this.showStep(3);
@@ -1508,7 +1540,8 @@
                             session_id: this.sessionId,
                             model: this.selectedModel,
                             text: text,
-                            question_count: this.selectedCount
+                            question_count: this.selectedCount,
+                            question_type: this.selectedModel === '3' ? (this.selectedQuestionType || 'Multiple Choice') : undefined
                         })
                     });
 

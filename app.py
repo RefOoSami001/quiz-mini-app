@@ -4,6 +4,7 @@ import pdfplumber
 from io import BytesIO
 from api_service import MCQGeneratorAPI
 from api_service2 import MCQGeneratorAPI2
+from api_service3 import MCQGeneratorAPI3
 from config import MIN_TEXT_LENGTH, BOT_TOKEN
 import telebot
 from telebot import types
@@ -21,6 +22,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 # Initialize API services
 api_service1 = MCQGeneratorAPI()
 api_service2 = MCQGeneratorAPI2()
+api_service3 = MCQGeneratorAPI3()
 
 # Initialize Telegram bot for sending polls
 bot = telebot.TeleBot(BOT_TOKEN, threaded=True)
@@ -115,6 +117,7 @@ def generate_questions():
         model = data.get('model', '1')
         text = data.get('text', '')
         question_count = data.get('question_count', 10)
+        question_type = data.get('question_type')  # only required for model 3
         
         if not text or len(text) < MIN_TEXT_LENGTH:
             return jsonify({
@@ -137,8 +140,14 @@ def generate_questions():
                 
                 if model == '1':
                     success, result = api_service1.generate_questions(text)
-                else:
+                elif model == '2':
                     success, result = api_service2.generate_questions(text, question_count)
+                elif model == '3':
+                    # Fallbacks
+                    qtype = question_type or 'Multiple Choice'
+                    success, result = api_service3.generate_questions(text, question_count, qtype)
+                else:
+                    success, result = False, 'Unknown model'
                 
                 # Store result in session
                 with session_lock:
