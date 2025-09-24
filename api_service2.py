@@ -37,7 +37,7 @@ class MCQGeneratorAPI2:
         try:
             json_data = {
                 'topic': topic,
-                'education_level': '18+',
+                'education_level': 'Adults (Ages 24+)',
                 'number_of_questions':num_questions,
             }
 
