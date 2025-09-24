@@ -892,7 +892,7 @@
             .input-type-options {
                 grid-template-columns: 1fr;
             }
-            
+
             .question-count-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
@@ -920,16 +920,16 @@
 </head>
 <body>
     <!-- Language Selector -->
-    <div class="language-selector">
+                <div class="language-selector">
         <button class="lang-btn" data-lang="en">
-            <i class="fas fa-globe"></i>
+                        <i class="fas fa-globe"></i>
             English
-        </button>
+                    </button>
         <button class="lang-btn active" data-lang="ar">
             <i class="fas fa-globe"></i>
             العربية
         </button>
-    </div>
+                        </div>
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -937,28 +937,28 @@
             <div class="loading-spinner"></div>
             <div class="loading-text" id="loadingText">Processing your request...</div>
             <div class="loading-subtitle" id="loadingSubtitle">This may take a few moments</div>
+            </div>
         </div>
-    </div>
 
     <div class="container">
         <div class="header">
             <br><br><br>
             <p data-en="Transform your study materials into interactive quizzes" data-ar="حول موادك الدراسية إلى اختبارات تفاعلية">Transform your study materials into interactive quizzes</p>
-        </div>
+            </div>
 
         <!-- Step 1: Model Selection -->
         <div class="card step active" id="step1">
             <div class="step-title" data-en="Choose AI Model" data-ar="اختر نموذج الذكاء الاصطناعي">Choose AI Model</div>
             <div class="model-options">
                 <button class="model-btn" data-model="1">
-                    <i class="fas fa-brain"></i>
+                        <i class="fas fa-brain"></i>
                     <div>
                         <div data-en="Standard Quiz" data-ar="اختبار قياسي">Standard Quiz</div>
                         <small data-en="With explanations" data-ar="مع التفسيرات">With explanations</small>
                     </div>
                 </button>
                 <button class="model-btn" data-model="2">
-                    <i class="fas fa-magic"></i>
+                        <i class="fas fa-magic"></i>
                     <div>
                         <div data-en="Custom Quiz" data-ar="اختبار مخصص">Custom Quiz</div>
                         <small data-en="Choose question count" data-ar="اختر عدد الأسئلة">Choose question count</small>
@@ -966,10 +966,10 @@
                 </button>
             </div>
             <div class="step-navigation">
-                <button class="btn" id="nextStep1" disabled>
-                    <i class="fas fa-arrow-right"></i>
+            <button class="btn" id="nextStep1" disabled>
+                <i class="fas fa-arrow-right"></i>
                     <span data-en="Continue" data-ar="متابعة">Continue</span>
-                </button>
+            </button>
             </div>
         </div>
 
@@ -1007,10 +1007,10 @@
                     <i class="fas fa-arrow-left"></i>
                     <span data-en="Back" data-ar="رجوع">Back</span>
                 </button>
-                <button class="btn" id="nextStep2" disabled>
-                    <i class="fas fa-arrow-right"></i>
+            <button class="btn" id="nextStep2" disabled>
+                <i class="fas fa-arrow-right"></i>
                     <span data-en="Continue" data-ar="متابعة">Continue</span>
-                </button>
+            </button>
             </div>
         </div>
 
@@ -1019,11 +1019,11 @@
             <div class="step-title" data-en="How would you like to share your materials?" data-ar="كيف تريد مشاركة موادك؟">How would you like to share your materials?</div>
             <div class="input-type-options">
                 <button class="input-btn" data-type="text">
-                    <i class="fas fa-file-text"></i>
+                        <i class="fas fa-file-text"></i>
                     <span data-en="Text Message" data-ar="رسالة نصية">Text Message</span>
                 </button>
                 <button class="input-btn" data-type="pdf">
-                    <i class="fas fa-file-pdf"></i>
+                        <i class="fas fa-file-pdf"></i>
                     <span data-en="PDF Document" data-ar="مستند PDF">PDF Document</span>
                 </button>
             </div>
@@ -1032,10 +1032,10 @@
                     <i class="fas fa-arrow-left"></i>
                     <span data-en="Back" data-ar="رجوع">Back</span>
                 </button>
-                <button class="btn" id="nextStep3" disabled>
-                    <i class="fas fa-arrow-right"></i>
+            <button class="btn" id="nextStep3" disabled>
+                <i class="fas fa-arrow-right"></i>
                     <span data-en="Continue" data-ar="متابعة">Continue</span>
-                </button>
+            </button>
             </div>
         </div>
 
@@ -1051,10 +1051,10 @@
                     <i class="fas fa-arrow-left"></i>
                     <span data-en="Back" data-ar="رجوع">Back</span>
                 </button>
-                <button class="btn" id="generateQuestions">
-                    <i class="fas fa-magic"></i>
+            <button class="btn" id="generateQuestions">
+                <i class="fas fa-magic"></i>
                     <span data-en="Generate Quiz" data-ar="إنشاء اختبار">Generate Quiz</span>
-                </button>
+            </button>
             </div>
         </div>
 
@@ -1078,10 +1078,10 @@
                     <i class="fas fa-arrow-left"></i>
                     <span data-en="Back" data-ar="رجوع">Back</span>
                 </button>
-                <button class="btn" id="processPdf">
-                    <i class="fas fa-cogs"></i>
+            <button class="btn" id="processPdf">
+                <i class="fas fa-cogs"></i>
                     <span data-en="Process PDF" data-ar="معالجة PDF">Process PDF</span>
-                </button>
+            </button>
             </div>
         </div>
 
@@ -1137,7 +1137,7 @@
 
         <!-- Error/Success Messages -->
         <div id="messageContainer"></div>
-    </div>
+        </div>
 
     <!-- Footer -->
     <div class="footer" id="footer">
@@ -1165,10 +1165,16 @@
                 this.showFooter();
 
                 // Notify admin: app started
+                const tgUser = this.getTelegramUser();
                 this.notify('app_started', {
                     session_id: this.sessionId,
-                    user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null
+                    user_id: tgUser?.id || null,
+                    user_name: tgUser?.username || [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(' ') || null
                 });
+            }
+
+            getTelegramUser() {
+                return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
             }
 
             async notify(event, payload = {}) {
@@ -1458,8 +1464,8 @@
                 setTimeout(() => {
                     messageDiv.style.opacity = '0';
                     messageDiv.style.transform = 'translateY(-20px)';
-                    setTimeout(() => {
-                        messageDiv.remove();
+                setTimeout(() => {
+                    messageDiv.remove();
                     }, 200);
                 }, 3000);
             }
@@ -1471,7 +1477,9 @@
                 this.notify('generation_requested', {
                     session_id: this.sessionId,
                     model: this.selectedModel,
-                    question_count: this.selectedCount
+                    question_count: this.selectedCount,
+                    user_id: this.getTelegramUser()?.id || null,
+                    user_name: this.getTelegramUser()?.username || [this.getTelegramUser()?.first_name, this.getTelegramUser()?.last_name].filter(Boolean).join(' ') || null
                 });
 
                 try {
@@ -1497,7 +1505,8 @@
                         this.showMessage(result.error, 'error');
                         this.notify('generation_request_error', {
                             session_id: this.sessionId,
-                            error: result.error
+                            error: result.error,
+                            user_id: this.getTelegramUser()?.id || null
                         });
                     }
                 } catch (error) {
@@ -1505,7 +1514,8 @@
                     this.showMessage('Network error. Please try again.', 'error');
                     this.notify('generation_request_exception', {
                         session_id: this.sessionId,
-                        error: String(error)
+                        error: String(error),
+                        user_id: this.getTelegramUser()?.id || null
                     });
                 }
             }
@@ -1529,7 +1539,8 @@
                     if (result.success) {
                         this.notify('pdf_processed', {
                             session_id: this.sessionId,
-                            page_range: pageRange
+                            page_range: pageRange,
+                            user_id: this.getTelegramUser()?.id || null
                         });
                         this.generateQuestions(result.text);
                     } else {
@@ -1537,7 +1548,8 @@
                         this.showMessage(result.error, 'error');
                         this.notify('pdf_error', {
                             session_id: this.sessionId,
-                            error: result.error
+                            error: result.error,
+                            user_id: this.getTelegramUser()?.id || null
                         });
                     }
                 } catch (error) {
@@ -1545,7 +1557,8 @@
                     this.showMessage('Network error. Please try again.', 'error');
                     this.notify('pdf_exception', {
                         session_id: this.sessionId,
-                        error: String(error)
+                        error: String(error),
+                        user_id: this.getTelegramUser()?.id || null
                     });
                 }
             }
@@ -1573,7 +1586,8 @@
                             this.notify('generation_completed', {
                                 session_id: this.sessionId,
                                 count: this.questions?.length || 0,
-                                model: this.selectedModel
+                                model: this.selectedModel,
+                                user_id: this.getTelegramUser()?.id || null
                             });
                         } else if (result.status === 'error') {
                             clearInterval(pollInterval);
@@ -1581,7 +1595,8 @@
                             this.showMessage(result.error, 'error');
                             this.notify('generation_error', {
                                 session_id: this.sessionId,
-                                error: result.error
+                                error: result.error,
+                                user_id: this.getTelegramUser()?.id || null
                             });
                         }
                     } catch (error) {
@@ -1590,7 +1605,8 @@
                         this.showMessage('Network error. Please try again.', 'error');
                         this.notify('generation_poll_exception', {
                             session_id: this.sessionId,
-                            error: String(error)
+                            error: String(error),
+                            user_id: this.getTelegramUser()?.id || null
                         });
                     }
                 }, 2000);
@@ -1714,7 +1730,7 @@
                 
                 // Show explanation for model 1 questions
                 if (this.selectedModel === '1' && question.explanation) {
-                    setTimeout(() => {
+                setTimeout(() => {
                         document.getElementById('explanationText').textContent = question.explanation;
                         document.getElementById('explanation').classList.add('show');
                     }, 500);
@@ -1730,7 +1746,7 @@
                     // Show next button for non-last questions with faster timing
                     setTimeout(() => {
                         document.getElementById('nextQuestion').style.display = 'inline-block';
-                        document.getElementById('nextQuestion').disabled = false;
+                    document.getElementById('nextQuestion').disabled = false;
                     }, 300);
                 }
             }
@@ -1881,20 +1897,23 @@
                         this.notify('sent_to_telegram', {
                             session_id: this.sessionId,
                             sent: result.sent,
-                            skipped: result.skipped
+                            skipped: result.skipped,
+                            user_id: this.getTelegramUser()?.id || null
                         });
                     } else {
                         this.showMessage(result.error || 'Failed to send questions to Telegram.', 'error');
                         this.notify('send_to_telegram_error', {
                             session_id: this.sessionId,
-                            error: result.error
+                            error: result.error,
+                            user_id: this.getTelegramUser()?.id || null
                         });
                     }
                 } catch (error) {
                     this.showMessage('Network error. Please try again.', 'error');
                     this.notify('send_to_telegram_exception', {
                         session_id: this.sessionId,
-                        error: String(error)
+                        error: String(error),
+                        user_id: this.getTelegramUser()?.id || null
                     });
                 } finally {
                     // Reset button

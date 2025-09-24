@@ -25,17 +25,8 @@ api_service2 = MCQGeneratorAPI2()
 # Initialize Telegram bot for sending polls
 bot = telebot.TeleBot(BOT_TOKEN, threaded=True)
 
-# Admin notifications
-ADMIN_CHAT_ID = int(os.getenv('ADMIN_CHAT_ID', '854578633'))  # default to provided ID
-
-def notify_admin(message: str) -> None:
-    try:
-        if not message:
-            return
-        bot.send_message(ADMIN_CHAT_ID, message)
-    except Exception as e:
-        # Avoid raising in request path; just log
-        print(f"Failed to notify admin: {e}")
+# Admin chat ID for notifications
+ADMIN_CHAT_ID = int(os.getenv('ADMIN_CHAT_ID', '854578633'))
 
 # Thread pool for handling question generation
 executor = ThreadPoolExecutor(max_workers=10)
@@ -53,6 +44,68 @@ def allowed_file(filename):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/api/notify', methods=['POST'])
+def notify_admin():
+    """
+    Notify the admin via Telegram about app events.
+    Expected JSON body:
+      {
+        "event": "app_started|generation_requested|generation_completed|error|pdf_processed|sent_to_telegram|custom",
+        "payload": { ... arbitrary ... }
+      }
+    """
+    try:
+        data = request.get_json() or {}
+        event = data.get('event', 'unknown_event')
+        payload = data.get('payload', {})
+
+        # Extract common user fields if provided
+        user_id = payload.get('user_id') or payload.get('telegram_user_id')
+        user_name = payload.get('user_name') or payload.get('name')
+        session_id = payload.get('session_id')
+
+        # Build a readable message
+        lines = []
+        lines.append(f"Event: {event}")
+        if session_id:
+            lines.append(f"Session: {session_id}")
+        if user_id is not None:
+            lines.append(f"User ID: {user_id}")
+        if user_name:
+            lines.append(f"User: {user_name}")
+
+        # Add small set of known fields if present
+        for key in [
+            'model', 'question_count', 'count', 'page_range', 'error', 'status',
+            'sent', 'skipped'
+        ]:
+            if key in payload and payload[key] is not None:
+                lines.append(f"{key.replace('_',' ').title()}: {payload[key]}")
+
+        # Fallback: include remaining payload keys compactly
+        extra = {k: v for k, v in payload.items() if k not in ['user_id','telegram_user_id','user_name','name','session_id','model','question_count','count','page_range','error','status','sent','skipped']}
+        if extra:
+            try:
+                lines.append(f"Payload: {json.dumps(extra)[:800]}")
+            except Exception:
+                pass
+
+        message = "\n".join(lines)
+
+        # Send to admin
+        try:
+            bot.send_message(ADMIN_CHAT_ID, message)
+        except Exception as e:
+            # Return 200 but indicate telegram error
+            return jsonify({
+                'success': False,
+                'error': f'Telegram send error: {str(e)}'
+            }), 200
+
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/generate-questions', methods=['POST'])
 def generate_questions():
@@ -76,9 +129,6 @@ def generate_questions():
             user_sessions[session_id]['model'] = model
             user_sessions[session_id]['question_count'] = question_count
         
-        # Notify admin about generation start
-        notify_admin(f"🟡 Quiz generation started\nSession: {session_id}\nModel: {model}\nRequested count: {question_count}")
-
         # Generate questions asynchronously
         def _generate():
             try:
@@ -96,19 +146,12 @@ def generate_questions():
                         user_sessions[session_id]['questions'] = result if success else None
                         user_sessions[session_id]['generation_success'] = success
                         user_sessions[session_id]['generation_error'] = result if not success else None
-                # Notify admin on completion
-                if success:
-                    num = len(result) if isinstance(result, (list, dict)) else 0
-                    notify_admin(f"🟢 Quiz generated successfully\nSession: {session_id}\nModel: {model}\nCount: {num}")
-                else:
-                    notify_admin(f"🔴 Quiz generation failed\nSession: {session_id}\nModel: {model}\nError: {result}")
                 
             except Exception as e:
                 with session_lock:
                     if session_id in user_sessions:
                         user_sessions[session_id]['generation_success'] = False
                         user_sessions[session_id]['generation_error'] = str(e)
-                notify_admin(f"🔴 Exception during generation\nSession: {session_id}\nModel: {model}\nError: {str(e)}")
         
         executor.submit(_generate)
         
@@ -118,7 +161,6 @@ def generate_questions():
         })
         
     except Exception as e:
-        notify_admin(f"🔴 /api/generate-questions error: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -163,7 +205,6 @@ def check_generation_status():
 def process_pdf():
     try:
         if 'file' not in request.files:
-            notify_admin("🔴 /api/process-pdf: No file provided")
             return jsonify({'success': False, 'error': 'No file provided'}), 400
         
         file = request.files['file']
@@ -171,11 +212,9 @@ def process_pdf():
         page_range = request.form.get('page_range', '1-1')
         
         if file.filename == '':
-            notify_admin("🔴 /api/process-pdf: No file selected")
             return jsonify({'success': False, 'error': 'No file selected'}), 400
         
         if not allowed_file(file.filename):
-            notify_admin(f"🔴 /api/process-pdf: Unsupported file type {file.filename}")
             return jsonify({'success': False, 'error': 'Only PDF files are allowed'}), 400
         
         # Parse page range
@@ -185,7 +224,6 @@ def process_pdf():
             else:
                 start_page = end_page = int(page_range)
         except ValueError:
-            notify_admin(f"🔴 /api/process-pdf: Invalid page range '{page_range}'")
             return jsonify({'success': False, 'error': 'Invalid page range format'}), 400
         
         # Process PDF
@@ -209,7 +247,6 @@ def process_pdf():
                         text_content += pdf.pages[page_num].extract_text() + "\n"
             
             if len(text_content) < MIN_TEXT_LENGTH:
-                notify_admin(f"🔴 /api/process-pdf: Extracted text too short (session {session_id})")
                 return jsonify({
                     'success': False,
                     'error': 'Extracted text is too short. Please select more pages or try a different document.'
@@ -228,14 +265,12 @@ def process_pdf():
             })
             
         except Exception as e:
-            notify_admin(f"🔴 /api/process-pdf exception: {str(e)}")
             return jsonify({
                 'success': False,
                 'error': f'Error processing PDF: {str(e)}'
             }), 500
             
     except Exception as e:
-        notify_admin(f"🔴 /api/process-pdf error: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -344,7 +379,6 @@ def send_to_telegram():
                 skipped_count += 1
                 continue
         
-        notify_admin(f"📨 Sent questions to Telegram user {user_id}\nSession: {session_id}\nSent: {sent_count}, Skipped: {skipped_count}")
         return jsonify({
             'success': True,
             'message': f'Sent {sent_count} questions to Telegram',
@@ -353,26 +387,10 @@ def send_to_telegram():
         })
         
     except Exception as e:
-        notify_admin(f"🔴 /api/send-to-telegram error: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
-
-# Generic notify endpoint for client-side events
-@app.route('/api/notify', methods=['POST'])
-def notify():
-    try:
-        data = request.get_json() or {}
-        event = data.get('event', 'event')
-        payload = data.get('payload', {})
-        # Build a readable message
-        msg = f"🔔 Event: {event}\nPayload: {json.dumps(payload, ensure_ascii=False)[:1000]}"
-        notify_admin(msg)
-        return jsonify({'success': True})
-    except Exception as e:
-        notify_admin(f"🔴 /api/notify error: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Create templates directory if it doesn't exist
