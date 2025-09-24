@@ -7,7 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -19,19 +19,12 @@
         :root {
             --font-english: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-arabic: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
-            --font-weight-thin: 300;
-            --font-weight-regular: 400;
-            --font-weight-medium: 500;
-            --font-weight-semibold: 600;
-            --font-weight-bold: 700;
-            --font-weight-extrabold: 800;
-            --font-weight-black: 900;
             --animation-duration: 0.2s;
             --animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: var(--font-arabic);
+            font-family: var(--font-english);
             background: linear-gradient(135deg, var(--tg-theme-bg-color, #f8f9fa) 0%, var(--tg-theme-secondary-bg-color, #e9ecef) 100%);
             color: var(--tg-theme-text-color, #212529);
             line-height: 1.6;
@@ -41,8 +34,9 @@
             transition: all var(--animation-duration) var(--animation-easing);
         }
 
-        body[dir="rtl"] { font-family: var(--font-arabic); }
-        body[dir="ltr"] { font-family: var(--font-english); }
+        body[dir="rtl"] {
+            font-family: var(--font-arabic);
+        }
 
         .container {
             max-width: 600px;
@@ -970,6 +964,13 @@
                         <small data-en="Choose question count" data-ar="اختر عدد الأسئلة">Choose question count</small>
                     </div>
                 </button>
+                <button class="model-btn" data-model="3">
+                        <i class="fas fa-question-circle"></i>
+                    <div>
+                        <div data-en="Question Type" data-ar="نوع السؤال">Question Type</div>
+                        <small data-en="Choose question type and count" data-ar="اختر نوع السؤال وعدده">Choose question type and count</small>
+                    </div>
+                </button>
             </div>
             <div class="step-navigation">
             <button class="btn" id="nextStep1" disabled>
@@ -979,7 +980,7 @@
             </div>
         </div>
 
-        <!-- Step 2: Question Count (Model 2 only) -->
+        <!-- Step 2: Question Count (Model 2) + Question Type (Model 3) -->
         <div class="card step" id="step2">
             <div class="step-title" data-en="How many questions?" data-ar="كم عدد الأسئلة؟">How many questions?</div>
             <div class="question-count-grid">
@@ -1008,7 +1009,6 @@
                     <span data-en="30 Questions" data-ar="30 سؤال">30 Questions</span>
                 </button>
             </div>
-            <!-- Question type (only for Model 3) -->
             <div id="questionTypeSection" style="display:none; margin-top: 10px;">
                 <div class="step-title" style="margin-bottom:10px;" data-en="Choose question type" data-ar="اختر نوع الأسئلة">Choose question type</div>
                 <div class="input-type-options">
@@ -1184,30 +1184,6 @@
                 this.initializeLanguage();
                 this.initializeLoadingMessages();
                 this.showFooter();
-
-                // Notify admin: app started
-                const tgUser = this.getTelegramUser();
-                this.notify('app_started', {
-                    session_id: this.sessionId,
-                    user_id: tgUser?.id || null,
-                    user_name: tgUser?.username || [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(' ') || null
-                });
-            }
-
-            getTelegramUser() {
-                return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
-            }
-
-            async notify(event, payload = {}) {
-                try {
-                    await fetch('/api/notify', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ event, payload })
-                    });
-                } catch (_) {
-                    // ignore client-side notify errors
-                }
             }
 
             generateSessionId() {
@@ -1321,16 +1297,6 @@
                         icon.className = 'fas fa-arrow-right';
                     });
                 }
-
-                // Apply stronger weights for headings in English, keep Cairo defaults in Arabic
-                const headingEls = document.querySelectorAll('.welcome-title, .step-title, .logo-text');
-                headingEls.forEach(el => {
-                    el.style.fontWeight = lang === 'ar' ? '700' : '800';
-                });
-                const buttonEls = document.querySelectorAll('.btn, .model-btn, .input-btn, .count-btn');
-                buttonEls.forEach(el => {
-                    el.style.fontWeight = lang === 'ar' ? '600' : '600';
-                });
             }
 
             initializeEventListeners() {
@@ -1351,11 +1317,6 @@
                         e.target.classList.add('selected');
                         this.selectedCount = parseInt(e.target.dataset.count);
                         document.getElementById('nextStep2').disabled = false;
-                        // If model 3, reveal question type section
-                        const qTypeSec = document.getElementById('questionTypeSection');
-                        if (this.selectedModel === '3' && qTypeSec) {
-                            qTypeSec.style.display = 'block';
-                        }
                     });
                 });
 
@@ -1381,10 +1342,14 @@
 
                 // Step navigation
                 document.getElementById('nextStep1').addEventListener('click', () => {
-                    if (this.selectedModel === '2') {
-                        this.showStep(2);
-                    } else if (this.selectedModel === '3') {
-                        // Model 3 requires question type selection (reuse step2 for count, then step3 for input type, then step4/5 as usual)
+                    if (this.selectedModel === '2' || this.selectedModel === '3') {
+                        // If model 3, reveal question type section
+                        const qTypeSec = document.getElementById('questionTypeSection');
+                        if (this.selectedModel === '3' && qTypeSec) {
+                            qTypeSec.style.display = 'block';
+                        } else if (qTypeSec) {
+                            qTypeSec.style.display = 'none';
+                        }
                         this.showStep(2);
                     } else {
                         this.showStep(3);
@@ -1521,15 +1486,6 @@
             async generateQuestions(text) {
                 this.showLoading('Analyzing your material and crafting questions...');
                 
-                // Notify admin: generation requested
-                this.notify('generation_requested', {
-                    session_id: this.sessionId,
-                    model: this.selectedModel,
-                    question_count: this.selectedCount,
-                    user_id: this.getTelegramUser()?.id || null,
-                    user_name: this.getTelegramUser()?.username || [this.getTelegramUser()?.first_name, this.getTelegramUser()?.last_name].filter(Boolean).join(' ') || null
-                });
-
                 try {
                     const response = await fetch('/api/generate-questions', {
                         method: 'POST',
@@ -1552,20 +1508,10 @@
                     } else {
                         this.hideLoading();
                         this.showMessage(result.error, 'error');
-                        this.notify('generation_request_error', {
-                            session_id: this.sessionId,
-                            error: result.error,
-                            user_id: this.getTelegramUser()?.id || null
-                        });
                     }
                 } catch (error) {
                     this.hideLoading();
                     this.showMessage('Network error. Please try again.', 'error');
-                    this.notify('generation_request_exception', {
-                        session_id: this.sessionId,
-                        error: String(error),
-                        user_id: this.getTelegramUser()?.id || null
-                    });
                 }
             }
 
@@ -1586,29 +1532,14 @@
                     const result = await response.json();
                     
                     if (result.success) {
-                        this.notify('pdf_processed', {
-                            session_id: this.sessionId,
-                            page_range: pageRange,
-                            user_id: this.getTelegramUser()?.id || null
-                        });
                         this.generateQuestions(result.text);
                     } else {
                         this.hideLoading();
                         this.showMessage(result.error, 'error');
-                        this.notify('pdf_error', {
-                            session_id: this.sessionId,
-                            error: result.error,
-                            user_id: this.getTelegramUser()?.id || null
-                        });
                     }
                 } catch (error) {
                     this.hideLoading();
                     this.showMessage('Network error. Please try again.', 'error');
-                    this.notify('pdf_exception', {
-                        session_id: this.sessionId,
-                        error: String(error),
-                        user_id: this.getTelegramUser()?.id || null
-                    });
                 }
             }
 
@@ -1632,31 +1563,15 @@
                             this.hideLoading();
                             this.questions = this.parseQuestions(result.questions);
                             this.startQuiz();
-                            this.notify('generation_completed', {
-                                session_id: this.sessionId,
-                                count: this.questions?.length || 0,
-                                model: this.selectedModel,
-                                user_id: this.getTelegramUser()?.id || null
-                            });
                         } else if (result.status === 'error') {
                             clearInterval(pollInterval);
                             this.hideLoading();
                             this.showMessage(result.error, 'error');
-                            this.notify('generation_error', {
-                                session_id: this.sessionId,
-                                error: result.error,
-                                user_id: this.getTelegramUser()?.id || null
-                            });
                         }
                     } catch (error) {
                         clearInterval(pollInterval);
                         this.hideLoading();
                         this.showMessage('Network error. Please try again.', 'error');
-                        this.notify('generation_poll_exception', {
-                            session_id: this.sessionId,
-                            error: String(error),
-                            user_id: this.getTelegramUser()?.id || null
-                        });
                     }
                 }, 2000);
             }
@@ -1677,7 +1592,7 @@
                             });
                         }
                     });
-                } else {
+                } else if (this.selectedModel === '2') {
                     // Model 2 format
                     Object.values(questionsData).forEach((q, index) => {
                         if (q.text && q.options && q.answer) {
@@ -1689,6 +1604,24 @@
                                 correct: correctIndex,
                                 explanation: ''
                             });
+                        }
+                    });
+                } else if (this.selectedModel === '3') {
+                    // Backend normalizes API3 to unified list; accept as-is if matches
+                    if (Array.isArray(questionsData) && questionsData.length && questionsData[0].question && questionsData[0].options) {
+                        return questionsData;
+                    }
+                    // Fallback: try to parse raw API3 structure from examples
+                    const qArr = Array.isArray(questionsData) ? questionsData : (questionsData?.questions || []);
+                    qArr.forEach((q) => {
+                        if (q.options && q.correct_answer && q.question) {
+                            const options = q.options;
+                            const correctIndex = options.findIndex(o => o === q.correct_answer);
+                            questions.push({ question: q.question, options, correct: correctIndex >= 0 ? correctIndex : 0, explanation: '' });
+                        } else if (q.correct_answer !== undefined && q.question) {
+                            const opts = ['True', 'False'];
+                            const correctBool = String(q.correct_answer).trim().toLowerCase() === 'true';
+                            questions.push({ question: q.question, options: opts, correct: correctBool ? 0 : 1, explanation: '' });
                         }
                     });
                 }
@@ -1839,18 +1772,6 @@
                 // Hide quiz container and show results
                 document.getElementById('quizContainer').classList.remove('active');
                 document.getElementById('resultsContainer').classList.add('active');
-
-                // Ensure next button is hidden and explanation collapsed
-                const nextBtn = document.getElementById('nextQuestion');
-                if (nextBtn) {
-                    nextBtn.style.display = 'none';
-                    nextBtn.disabled = true;
-                }
-                const explanationBox = document.getElementById('explanation');
-                if (explanationBox) explanationBox.classList.remove('show');
-
-                // Scroll to top so results are visible immediately
-                try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_) {}
             }
 
             restartQuiz() {
@@ -1871,6 +1792,7 @@
                 this.selectedModel = null;
                 this.selectedCount = 10;
                 this.selectedInputType = null;
+                this.selectedQuestionType = 'Multiple Choice';
                 this.questions = [];
                 this.currentQuestionIndex = 0;
                 this.userAnswers = [];
@@ -1955,27 +1877,11 @@
                         if (window.Telegram && window.Telegram.WebApp) {
                             window.Telegram.WebApp.close();
                         }
-                        this.notify('sent_to_telegram', {
-                            session_id: this.sessionId,
-                            sent: result.sent,
-                            skipped: result.skipped,
-                            user_id: this.getTelegramUser()?.id || null
-                        });
                     } else {
                         this.showMessage(result.error || 'Failed to send questions to Telegram.', 'error');
-                        this.notify('send_to_telegram_error', {
-                            session_id: this.sessionId,
-                            error: result.error,
-                            user_id: this.getTelegramUser()?.id || null
-                        });
                     }
                 } catch (error) {
                     this.showMessage('Network error. Please try again.', 'error');
-                    this.notify('send_to_telegram_exception', {
-                        session_id: this.sessionId,
-                        error: String(error),
-                        user_id: this.getTelegramUser()?.id || null
-                    });
                 } finally {
                     // Reset button
                     const btn = document.getElementById('sendToTelegram');

@@ -27,9 +27,6 @@ api_service3 = MCQGeneratorAPI3()
 # Initialize Telegram bot for sending polls
 bot = telebot.TeleBot(BOT_TOKEN, threaded=True)
 
-# Admin chat ID for notifications
-ADMIN_CHAT_ID = int(os.getenv('ADMIN_CHAT_ID', '854578633'))
-
 # Thread pool for handling question generation
 executor = ThreadPoolExecutor(max_workers=10)
 
@@ -47,68 +44,6 @@ def allowed_file(filename):
 def index():
     return render_template('index.html')
 
-@app.route('/api/notify', methods=['POST'])
-def notify_admin():
-    """
-    Notify the admin via Telegram about app events.
-    Expected JSON body:
-      {
-        "event": "app_started|generation_requested|generation_completed|error|pdf_processed|sent_to_telegram|custom",
-        "payload": { ... arbitrary ... }
-      }
-    """
-    try:
-        data = request.get_json() or {}
-        event = data.get('event', 'unknown_event')
-        payload = data.get('payload', {})
-
-        # Extract common user fields if provided
-        user_id = payload.get('user_id') or payload.get('telegram_user_id')
-        user_name = payload.get('user_name') or payload.get('name')
-        session_id = payload.get('session_id')
-
-        # Build a readable message
-        lines = []
-        lines.append(f"Event: {event}")
-        if session_id:
-            lines.append(f"Session: {session_id}")
-        if user_id is not None:
-            lines.append(f"User ID: {user_id}")
-        if user_name:
-            lines.append(f"User: {user_name}")
-
-        # Add small set of known fields if present
-        for key in [
-            'model', 'question_count', 'count', 'page_range', 'error', 'status',
-            'sent', 'skipped'
-        ]:
-            if key in payload and payload[key] is not None:
-                lines.append(f"{key.replace('_',' ').title()}: {payload[key]}")
-
-        # Fallback: include remaining payload keys compactly
-        extra = {k: v for k, v in payload.items() if k not in ['user_id','telegram_user_id','user_name','name','session_id','model','question_count','count','page_range','error','status','sent','skipped']}
-        if extra:
-            try:
-                lines.append(f"Payload: {json.dumps(extra)[:800]}")
-            except Exception:
-                pass
-
-        message = "\n".join(lines)
-
-        # Send to admin
-        try:
-            bot.send_message(ADMIN_CHAT_ID, message)
-        except Exception as e:
-            # Return 200 but indicate telegram error
-            return jsonify({
-                'success': False,
-                'error': f'Telegram send error: {str(e)}'
-            }), 200
-
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
 @app.route('/api/generate-questions', methods=['POST'])
 def generate_questions():
     try:
@@ -117,7 +52,7 @@ def generate_questions():
         model = data.get('model', '1')
         text = data.get('text', '')
         question_count = data.get('question_count', 10)
-        question_type = data.get('question_type')  # only required for model 3
+        question_type = data.get('question_type')  # for model 3: 'true/false' or 'Multiple Choice'
         
         if not text or len(text) < MIN_TEXT_LENGTH:
             return jsonify({
@@ -131,6 +66,8 @@ def generate_questions():
                 user_sessions[session_id] = {}
             user_sessions[session_id]['model'] = model
             user_sessions[session_id]['question_count'] = question_count
+            if question_type:
+                user_sessions[session_id]['question_type'] = question_type
         
         # Generate questions asynchronously
         def _generate():
@@ -143,9 +80,44 @@ def generate_questions():
                 elif model == '2':
                     success, result = api_service2.generate_questions(text, question_count)
                 elif model == '3':
-                    # Fallbacks
-                    qtype = question_type or 'Multiple Choice'
-                    success, result = api_service3.generate_questions(text, question_count, qtype)
+                    qt = question_type or user_sessions.get(session_id, {}).get('question_type') or 'Multiple Choice'
+                    success, result = api_service3.generate_questions(text, question_count, qt)
+                    # Normalize API3 responses into a unified list of {question, options, correct, explanation}
+                    try:
+                        normalized = []
+                        questions = result.get('questions') if isinstance(result, dict) else None
+                        if isinstance(questions, list):
+                            for q in questions:
+                                if 'options' in q and 'correct_answer' in q:
+                                    # Multiple Choice: options like ["A) ...", ...], correct_answer is like "A) ..."
+                                    opts = q.get('options', [])
+                                    correct_text = q.get('correct_answer')
+                                    correct_index = 0
+                                    for idx, opt in enumerate(opts):
+                                        if opt == correct_text:
+                                            correct_index = idx
+                                            break
+                                    normalized.append({
+                                        'question': q.get('question', ''),
+                                        'options': opts,
+                                        'correct': correct_index,
+                                        'explanation': ''
+                                    })
+                                elif 'correct_answer' in q and 'question' in q:
+                                    # True/False: we will map to options ["True","False"] and correct index
+                                    correct_bool = str(q.get('correct_answer', '')).strip().lower() in ['true', 't', '1']
+                                    opts = ['True', 'False']
+                                    correct_index = 0 if correct_bool else 1
+                                    normalized.append({
+                                        'question': q.get('question', ''),
+                                        'options': opts,
+                                        'correct': correct_index,
+                                        'explanation': ''
+                                    })
+                        if normalized:
+                            result = normalized
+                    except Exception:
+                        pass
                 else:
                     success, result = False, 'Unknown model'
                 
