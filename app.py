@@ -25,6 +25,18 @@ api_service2 = MCQGeneratorAPI2()
 # Initialize Telegram bot for sending polls
 bot = telebot.TeleBot(BOT_TOKEN, threaded=True)
 
+# Admin notifications
+ADMIN_CHAT_ID = int(os.getenv('ADMIN_CHAT_ID', '854578633'))  # default to provided ID
+
+def notify_admin(message: str) -> None:
+    try:
+        if not message:
+            return
+        bot.send_message(ADMIN_CHAT_ID, message)
+    except Exception as e:
+        # Avoid raising in request path; just log
+        print(f"Failed to notify admin: {e}")
+
 # Thread pool for handling question generation
 executor = ThreadPoolExecutor(max_workers=10)
 
@@ -64,6 +76,9 @@ def generate_questions():
             user_sessions[session_id]['model'] = model
             user_sessions[session_id]['question_count'] = question_count
         
+        # Notify admin about generation start
+        notify_admin(f"🟡 Quiz generation started\nSession: {session_id}\nModel: {model}\nRequested count: {question_count}")
+
         # Generate questions asynchronously
         def _generate():
             try:
@@ -81,12 +96,19 @@ def generate_questions():
                         user_sessions[session_id]['questions'] = result if success else None
                         user_sessions[session_id]['generation_success'] = success
                         user_sessions[session_id]['generation_error'] = result if not success else None
+                # Notify admin on completion
+                if success:
+                    num = len(result) if isinstance(result, (list, dict)) else 0
+                    notify_admin(f"🟢 Quiz generated successfully\nSession: {session_id}\nModel: {model}\nCount: {num}")
+                else:
+                    notify_admin(f"🔴 Quiz generation failed\nSession: {session_id}\nModel: {model}\nError: {result}")
                 
             except Exception as e:
                 with session_lock:
                     if session_id in user_sessions:
                         user_sessions[session_id]['generation_success'] = False
                         user_sessions[session_id]['generation_error'] = str(e)
+                notify_admin(f"🔴 Exception during generation\nSession: {session_id}\nModel: {model}\nError: {str(e)}")
         
         executor.submit(_generate)
         
@@ -96,6 +118,7 @@ def generate_questions():
         })
         
     except Exception as e:
+        notify_admin(f"🔴 /api/generate-questions error: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -140,6 +163,7 @@ def check_generation_status():
 def process_pdf():
     try:
         if 'file' not in request.files:
+            notify_admin("🔴 /api/process-pdf: No file provided")
             return jsonify({'success': False, 'error': 'No file provided'}), 400
         
         file = request.files['file']
@@ -147,9 +171,11 @@ def process_pdf():
         page_range = request.form.get('page_range', '1-1')
         
         if file.filename == '':
+            notify_admin("🔴 /api/process-pdf: No file selected")
             return jsonify({'success': False, 'error': 'No file selected'}), 400
         
         if not allowed_file(file.filename):
+            notify_admin(f"🔴 /api/process-pdf: Unsupported file type {file.filename}")
             return jsonify({'success': False, 'error': 'Only PDF files are allowed'}), 400
         
         # Parse page range
@@ -159,6 +185,7 @@ def process_pdf():
             else:
                 start_page = end_page = int(page_range)
         except ValueError:
+            notify_admin(f"🔴 /api/process-pdf: Invalid page range '{page_range}'")
             return jsonify({'success': False, 'error': 'Invalid page range format'}), 400
         
         # Process PDF
@@ -182,6 +209,7 @@ def process_pdf():
                         text_content += pdf.pages[page_num].extract_text() + "\n"
             
             if len(text_content) < MIN_TEXT_LENGTH:
+                notify_admin(f"🔴 /api/process-pdf: Extracted text too short (session {session_id})")
                 return jsonify({
                     'success': False,
                     'error': 'Extracted text is too short. Please select more pages or try a different document.'
@@ -200,12 +228,14 @@ def process_pdf():
             })
             
         except Exception as e:
+            notify_admin(f"🔴 /api/process-pdf exception: {str(e)}")
             return jsonify({
                 'success': False,
                 'error': f'Error processing PDF: {str(e)}'
             }), 500
             
     except Exception as e:
+        notify_admin(f"🔴 /api/process-pdf error: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
@@ -314,6 +344,7 @@ def send_to_telegram():
                 skipped_count += 1
                 continue
         
+        notify_admin(f"📨 Sent questions to Telegram user {user_id}\nSession: {session_id}\nSent: {sent_count}, Skipped: {skipped_count}")
         return jsonify({
             'success': True,
             'message': f'Sent {sent_count} questions to Telegram',
@@ -322,10 +353,26 @@ def send_to_telegram():
         })
         
     except Exception as e:
+        notify_admin(f"🔴 /api/send-to-telegram error: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
+
+# Generic notify endpoint for client-side events
+@app.route('/api/notify', methods=['POST'])
+def notify():
+    try:
+        data = request.get_json() or {}
+        event = data.get('event', 'event')
+        payload = data.get('payload', {})
+        # Build a readable message
+        msg = f"🔔 Event: {event}\nPayload: {json.dumps(payload, ensure_ascii=False)[:1000]}"
+        notify_admin(msg)
+        return jsonify({'success': True})
+    except Exception as e:
+        notify_admin(f"🔴 /api/notify error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
     # Create templates directory if it doesn't exist

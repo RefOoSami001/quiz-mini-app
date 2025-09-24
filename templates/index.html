@@ -1163,6 +1163,24 @@
                 this.initializeLanguage();
                 this.initializeLoadingMessages();
                 this.showFooter();
+
+                // Notify admin: app started
+                this.notify('app_started', {
+                    session_id: this.sessionId,
+                    user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null
+                });
+            }
+
+            async notify(event, payload = {}) {
+                try {
+                    await fetch('/api/notify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ event, payload })
+                    });
+                } catch (_) {
+                    // ignore client-side notify errors
+                }
             }
 
             generateSessionId() {
@@ -1449,6 +1467,13 @@
             async generateQuestions(text) {
                 this.showLoading('Analyzing your material and crafting questions...');
                 
+                // Notify admin: generation requested
+                this.notify('generation_requested', {
+                    session_id: this.sessionId,
+                    model: this.selectedModel,
+                    question_count: this.selectedCount
+                });
+
                 try {
                     const response = await fetch('/api/generate-questions', {
                         method: 'POST',
@@ -1470,10 +1495,18 @@
                     } else {
                         this.hideLoading();
                         this.showMessage(result.error, 'error');
+                        this.notify('generation_request_error', {
+                            session_id: this.sessionId,
+                            error: result.error
+                        });
                     }
                 } catch (error) {
                     this.hideLoading();
                     this.showMessage('Network error. Please try again.', 'error');
+                    this.notify('generation_request_exception', {
+                        session_id: this.sessionId,
+                        error: String(error)
+                    });
                 }
             }
 
@@ -1494,14 +1527,26 @@
                     const result = await response.json();
                     
                     if (result.success) {
+                        this.notify('pdf_processed', {
+                            session_id: this.sessionId,
+                            page_range: pageRange
+                        });
                         this.generateQuestions(result.text);
                     } else {
                         this.hideLoading();
                         this.showMessage(result.error, 'error');
+                        this.notify('pdf_error', {
+                            session_id: this.sessionId,
+                            error: result.error
+                        });
                     }
                 } catch (error) {
                     this.hideLoading();
                     this.showMessage('Network error. Please try again.', 'error');
+                    this.notify('pdf_exception', {
+                        session_id: this.sessionId,
+                        error: String(error)
+                    });
                 }
             }
 
@@ -1525,15 +1570,28 @@
                             this.hideLoading();
                             this.questions = this.parseQuestions(result.questions);
                             this.startQuiz();
+                            this.notify('generation_completed', {
+                                session_id: this.sessionId,
+                                count: this.questions?.length || 0,
+                                model: this.selectedModel
+                            });
                         } else if (result.status === 'error') {
                             clearInterval(pollInterval);
                             this.hideLoading();
                             this.showMessage(result.error, 'error');
+                            this.notify('generation_error', {
+                                session_id: this.sessionId,
+                                error: result.error
+                            });
                         }
                     } catch (error) {
                         clearInterval(pollInterval);
                         this.hideLoading();
                         this.showMessage('Network error. Please try again.', 'error');
+                        this.notify('generation_poll_exception', {
+                            session_id: this.sessionId,
+                            error: String(error)
+                        });
                     }
                 }, 2000);
             }
@@ -1820,11 +1878,24 @@
                         if (window.Telegram && window.Telegram.WebApp) {
                             window.Telegram.WebApp.close();
                         }
+                        this.notify('sent_to_telegram', {
+                            session_id: this.sessionId,
+                            sent: result.sent,
+                            skipped: result.skipped
+                        });
                     } else {
                         this.showMessage(result.error || 'Failed to send questions to Telegram.', 'error');
+                        this.notify('send_to_telegram_error', {
+                            session_id: this.sessionId,
+                            error: result.error
+                        });
                     }
                 } catch (error) {
                     this.showMessage('Network error. Please try again.', 'error');
+                    this.notify('send_to_telegram_exception', {
+                        session_id: this.sessionId,
+                        error: String(error)
+                    });
                 } finally {
                     // Reset button
                     const btn = document.getElementById('sendToTelegram');
