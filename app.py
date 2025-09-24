@@ -45,6 +45,11 @@ def allowed_file(filename):
 def index():
     return render_template('index.html')
 
+@app.route('/favicon.ico')
+def favicon():
+    # Return empty 204 to avoid 404 spam in logs
+    return ('', 204)
+
 @app.route('/api/notify-open', methods=['POST'])
 def notify_open():
     try:
