@@ -1288,8 +1288,8 @@
                 document.querySelectorAll('.input-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         document.querySelectorAll('.input-btn').forEach(b => b.classList.remove('selected'));
-                        e.target.classList.add('selected');
-                        this.selectedInputType = e.target.dataset.type;
+                        e.currentTarget.classList.add('selected');
+                        this.selectedInputType = e.currentTarget.dataset.type;
                         // toggle inline areas
                         document.getElementById('inlineTextArea').style.display = this.selectedInputType === 'text' ? 'block' : 'none';
                         document.getElementById('inlinePdfArea').style.display = this.selectedInputType === 'pdf' ? 'block' : 'none';
@@ -1310,6 +1310,10 @@
                         document.getElementById('fileName').textContent = fileName;
                         this.validateStep1();
                     });
+                }
+                const pageRangeInput = document.getElementById('pageRange');
+                if (pageRangeInput) {
+                    pageRangeInput.addEventListener('input', () => this.validateStep1());
                 }
 
                 // Step 2: Question type selection
@@ -1518,9 +1522,11 @@
                     const v = (document.getElementById('textInput').value || '').trim();
                     nextBtn.disabled = v.length < 30;
                 } else if (this.selectedInputType === 'pdf') {
-                    const hasFile = !!document.getElementById('pdfInput').files[0];
-                    const pr = (document.getElementById('pageRange').value || '').trim();
-                    nextBtn.disabled = !(hasFile && pr);
+                    const fileEl = document.getElementById('pdfInput');
+                    const hasFile = !!(fileEl && fileEl.files && fileEl.files[0]);
+                    const prEl = document.getElementById('pageRange');
+                    const pr = (prEl && prEl.value ? prEl.value : '').trim();
+                    nextBtn.disabled = !(hasFile && pr.length > 0);
                 } else {
                     nextBtn.disabled = true;
                 }
