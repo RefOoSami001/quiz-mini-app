@@ -21,22 +21,17 @@
             --font-arabic: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
             --animation-duration: 0.2s;
             --animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
-            --bg-main: #eef2fb;
-            --bg-soft: #ffffff;
-            --shadow-light: rgba(255, 255, 255, 0.85);
-            --shadow-dark: rgba(15, 23, 42, 0.18);
-            --primary-blue: #6c63ff;
-            --accent-cyan: #3bc9db;
+            --brand-primary: #e1306c;
+            --brand-dark: #731537;
+            --brand-light: #ffe4ef;
+            --card-border: rgba(115, 21, 55, 0.12);
         }
 
         body {
             font-family: var(--font-english);
-            background: radial-gradient(circle at 20% 20%, rgba(108,99,255,0.12), transparent 45%),
-                        radial-gradient(circle at 80% 0%, rgba(59,201,219,0.12), transparent 40%),
-                        var(--bg-main);
-            color: #1e293b;
+            color: var(--tg-theme-text-color, #212529);
             line-height: 1.6;
-            padding: 24px 16px 140px;
+            padding: 16px;
             min-height: 100vh;
             margin: 0;
             transition: all var(--animation-duration) var(--animation-easing);
@@ -47,7 +42,7 @@
         }
 
         .container {
-            max-width: 640px;
+            max-width: 600px;
             margin: 0 auto;
             animation: fadeInUp 0.6s var(--animation-easing);
         }
@@ -68,12 +63,13 @@
             top: 16px;
             right: 16px;
             z-index: 1000;
-            background: var(--bg-soft);
+            background: #fff;
             border-radius: 26px;
-            padding: 6px;
-            box-shadow: 14px 14px 30px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+            padding: 8px;
+            box-shadow: 0 18px 35px rgba(115, 21, 55, 0.22);
+            border: 1px solid rgba(225, 48, 108, 0.3);
             display: flex;
-            gap: 8px;
+            gap: 4px;
             animation: slideInRight 0.5s var(--animation-easing);
         }
 
@@ -89,93 +85,63 @@
         }
 
         .lang-btn {
-            padding: 8px 18px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 18px;
+            border-radius: 20px;
             background: transparent;
-            color: #475569;
+            color: var(--brand-dark);
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all var(--animation-duration) var(--animation-easing);
             display: flex;
             align-items: center;
             gap: 6px;
-            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.05), inset -4px -4px 8px rgba(255,255,255,0.9);
         }
 
         .lang-btn:hover {
-            color: var(--primary-blue);
+            background: rgba(225, 48, 108, 0.15);
+            color: var(--brand-dark);
+            transform: scale(1.05);
         }
 
         .lang-btn.active {
-            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
             color: white;
-            box-shadow: 0 12px 25px rgba(102,99,255,0.35);
+            box-shadow: 0 10px 18px rgba(115, 21, 55, 0.35);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 30px;
             animation: fadeInUp 0.8s var(--animation-easing);
         }
 
         .header h1 {
-            font-size: 30px;
-            margin-bottom: 10px;
-            color: #0f172a;
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: #000000;
             font-weight: 700;
-        }
-
-        .header p {
-            color: #6b7280;
-            font-size: 16px;
-        }
-
-        .brand-follow {
-            margin: 0 auto 24px;
-            max-width: 520px;
-            padding: 13px 15px;
-            border-radius: 22px;
-            background: var(--bg-soft);
-            border: 1px solid rgba(255,255,255,0.4);
-            box-shadow: 20px 20px 40px var(--shadow-dark), -15px -15px 35px var(--shadow-light);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             gap: 12px;
         }
 
-        .brand-follow span {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        .brand-follow a {
-            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
-            color: white;
-            padding: 10px 18px;
-            border-radius: 16px;
-            text-decoration: none;
-            font-weight: 600;
-            box-shadow: 0 12px 25px rgba(102,99,255,0.25);
-            transition: transform 0.2s ease;
-        }
-
-        .brand-follow a:hover {
-            transform: translateY(-2px);
+        .header p {
+            color: var(--tg-theme-hint-color, #999999);
+            font-size: 16px;
         }
 
         .card {
-            background: var(--bg-soft);
-            border-radius: 28px;
-            padding: 28px;
-            margin-bottom: 26px;
-            border: 1px solid rgba(255,255,255,0.35);
-            box-shadow: 28px 28px 50px var(--shadow-dark),
-                        -22px -22px 45px var(--shadow-light);
-            transition: transform 0.35s var(--animation-easing), box-shadow 0.35s var(--animation-easing);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 16px 40px rgba(115, 21, 55, 0.15);
+            backdrop-filter: blur(10px);
+            transition: all var(--animation-duration) var(--animation-easing);
             animation: slideInUp 0.5s var(--animation-easing);
         }
 
@@ -189,7 +155,53 @@
                 transform: translateY(0);
             }
         }
+        .brand-follow {
+            margin: 0 auto 28px;
+            padding: 18px 22px;
+            border-radius: 18px;
+            border: 1px dashed rgba(225, 48, 108, 0.4);
+            background: rgba(225, 48, 108, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
 
+        .brand-follow span {
+            font-size: 15px;
+            font-weight: 600;
+            color: #731537;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .brand-follow span::before {
+            content: "\f16d";
+            font-family: "Font Awesome 6 Brands";
+            font-weight: 900;
+            color: var(--brand-primary);
+        }
+
+
+
+        .brand-follow a {
+            background: #e1306c;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            box-shadow: 0 10px 24px rgba(225, 48, 108, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .brand-follow a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px rgba(225, 48, 108, 0.35);
+        }
         .card:hover {
             transform: translateY(-4px) scale(1.02);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
@@ -253,11 +265,11 @@
         }
 
         .model-btn {
-            padding: 18px;
-            border-radius: 22px;
-            border: none;
-            background: linear-gradient(145deg, rgba(255,255,255,0.75), rgba(209,213,219,0.4));
-            color: #475569;
+            padding: 15px;
+            border: 2px solid rgba(225, 48, 108, 0.35);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.75);
+            color: var(--brand-dark);
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -267,7 +279,6 @@
             align-items: center;
             gap: 8px;
             text-align: center;
-            box-shadow: inset 5px 5px 10px rgba(255,255,255,0.85), inset -6px -6px 14px rgba(0,0,0,0.05), 18px 18px 30px rgba(15,23,42,0.1);
         }
 
         .model-btn i {
@@ -275,27 +286,33 @@
             margin-bottom: 8px;
         }
 
-        .model-btn:hover,
+        .model-btn:hover {
+            background: linear-gradient(135deg, rgba(225,48,108,0.95), rgba(115,21,55,0.9));
+            color: white;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 15px 26px rgba(115,21,55,0.25);
+        }
+
         .model-btn.selected {
-            color: #0f172a;
-            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
-            transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(59,201,219,0.25);
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
+            color: white;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 15px 26px rgba(115,21,55,0.25);
         }
 
         .question-count-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
         .count-btn {
-            padding: 14px;
-            border-radius: 22px;
-            border: none;
-            background: linear-gradient(145deg, rgba(255,255,255,0.75), rgba(209,213,219,0.3));
-            color: #475569;
+            padding: 12px;
+            border: 1px solid rgba(225,48,108,0.25);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.7);
+            color: var(--brand-dark);
             font-size: 14px;
             cursor: pointer;
             transition: all var(--animation-duration) var(--animation-easing);
@@ -304,36 +321,38 @@
             align-items: center;
             gap: 6px;
             text-align: center;
-            box-shadow: inset 4px 4px 8px rgba(255,255,255,0.85),
-                        inset -4px -4px 8px rgba(0,0,0,0.04),
-                        15px 15px 22px rgba(15,23,42,0.08);
         }
 
         .count-btn i {
             font-size: 18px;
         }
 
-        .count-btn:hover,
+        .count-btn:hover {
+            background: rgba(225,48,108,0.12);
+            transform: translateY(-1px) scale(1.02);
+        }
+
         .count-btn.selected {
-            color: #0f172a;
-            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
-            box-shadow: 0 12px 24px rgba(102,99,255,0.25);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
+            color: white;
+            border-color: transparent;
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 6px 18px rgba(115,21,55,0.25);
         }
 
         .input-type-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
         .input-btn {
-            padding: 18px;
-            border-radius: 24px;
-            border: none;
-            background: linear-gradient(145deg, rgba(255,255,255,0.8), rgba(209,213,219,0.3));
-            color: #475569;
+            padding: 15px;
+            border: 2px solid rgba(225,48,108,0.35);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.75);
+            color: var(--brand-dark);
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -343,31 +362,34 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            box-shadow: inset 4px 4px 8px rgba(255,255,255,0.85),
-                        inset -4px -4px 8px rgba(0,0,0,0.05),
-                        18px 18px 28px rgba(15,23,42,0.08);
         }
 
         .input-btn i {
             font-size: 24px;
         }
 
-        .input-btn:hover,
+        .input-btn:hover {
+            background: linear-gradient(135deg, rgba(225,48,108,0.95), rgba(115,21,55,0.9));
+            color: white;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(115,21,55,0.25);
+        }
+
         .input-btn.selected {
-            color: #0f172a;
-            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
-            box-shadow: 0 12px 24px rgba(102,99,255,0.25);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
+            color: white;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(115,21,55,0.25);
         }
 
         .text-input {
             width: 100%;
             min-height: 200px;
             padding: 15px;
-            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
-            border-radius: 8px;
-            background: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
+            border: 1px solid rgba(225,48,108,0.35);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.85);
+            color: var(--brand-dark);
             font-size: 14px;
             resize: vertical;
             font-family: inherit;
@@ -376,8 +398,9 @@
         .file-input-container {
             text-align: center;
             padding: 20px;
-            border: 2px dashed var(--tg-theme-section-separator-color, #e1e5e9);
-            border-radius: 8px;
+            border: 2px dashed rgba(225,48,108,0.35);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.7);
             margin-bottom: 15px;
         }
 
@@ -388,20 +411,21 @@
         .file-input-label {
             display: inline-block;
             padding: 10px 20px;
-            background: var(--tg-theme-button-color, #007bff);
+            background: var(--brand-primary);
             color: white;
-            border-radius: 6px;
+            border-radius: 999px;
             cursor: pointer;
             font-size: 14px;
+            box-shadow: 0 10px 18px rgba(225,48,108,0.25);
         }
 
         .page-range-input {
             width: 100%;
             padding: 12px;
-            border: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
-            border-radius: 6px;
-            background: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
+            border: 1px solid rgba(225,48,108,0.3);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.85);
+            color: var(--brand-dark);
             font-size: 14px;
             margin-bottom: 15px;
         }
@@ -409,15 +433,15 @@
         .btn {
             width: 100%;
             padding: 16px 24px;
-            background: linear-gradient(135deg, var(--tg-theme-button-color, #007bff) 0%, #0056b3 100%);
+            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all var(--animation-duration) var(--animation-easing);
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 12px 26px rgba(115, 21, 55, 0.25);
             position: relative;
             overflow: hidden;
             display: flex;
@@ -443,7 +467,7 @@
 
         .btn:hover {
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
+            box-shadow: 0 16px 30px rgba(115, 21, 55, 0.35);
         }
 
         .btn:active {
@@ -454,7 +478,7 @@
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
-            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+            box-shadow: 0 2px 8px rgba(115, 21, 55, 0.2);
         }
 
         .btn i {
@@ -643,13 +667,13 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--tg-theme-secondary-bg-color, #ffffff);
-            border-top: 1px solid var(--tg-theme-section-separator-color, #e1e5e9);
+            background: rgba(255,255,255,0.95);
+            border-top: 1px solid rgba(225,48,108,0.2);
             padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -15px 25px rgba(115,21,55,0.12);
             z-index: 100;
         }
 
@@ -660,16 +684,16 @@
         }
 
         .telegram-poll-btn {
-            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+            background: linear-gradient(135deg, var(--brand-dark), #000);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 12px 20px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+            box-shadow: 0 8px 18px rgba(115,21,55,0.35);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -677,7 +701,7 @@
 
         .telegram-poll-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
+            box-shadow: 0 12px 24px rgba(115,21,55,0.4);
         }
 
         .telegram-poll-btn:disabled {
@@ -971,16 +995,7 @@
         <div class="header">
             <br><br><br>
             <p data-en="Transform your study materials into interactive quizzes" data-ar="حول موادك الدراسية إلى اختبارات تفاعلية">Transform your study materials into interactive quizzes</p>
-        </div>
-
-        <div class="brand-follow">
-            <span data-en="Support Us by following @rival_eg" data-ar="ادعمني بمتابعتنا على إنستغرام">
-                Support Us by following @rival_eg
-            </span>
-            <a href="https://instagram.com/rival_eg" target="_blank" rel="noopener noreferrer" data-en="Follow RIVAL" data-ar="Follow RIVAL">
-                Follow RIVAL
-            </a>
-        </div>
+            </div>
 
         <!-- Step 1: Input Method (inline text or PDF) -->
         <div class="card step active" id="step1">
@@ -1024,7 +1039,14 @@
             </button>
             </div>
         </div>
-
+        <div class="brand-follow">
+            <span data-en="Support Us by following @rival_eg" data-ar="ادعمني بمتابعتنا على إنستغرام">
+                Support Us by following @rival_eg
+            </span>
+            <a href="https://instagram.com/rival_eg" target="_blank" rel="noopener noreferrer" data-en="Follow RIVAL" data-ar="Follow RIVAL">
+                Follow RIVAL
+            </a>
+        </div>
         <!-- Step 2: Question Type -->
         <div class="card step" id="step2">
             <div class="step-title" data-en="Choose question type" data-ar="اختر نوع الأسئلة">Choose question type</div>
