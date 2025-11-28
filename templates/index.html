@@ -23,16 +23,26 @@
             --animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
             --brand-primary: #e1306c;
             --brand-dark: #731537;
-            --brand-light: #ffe4ef;
-            --card-border: rgba(115, 21, 55, 0.12);
+            --brand-light: #fff3f8;
+            --surface: #ffffff;
+            --surface-soft: #fff9fc;
+            --text-primary: #311020;
+            --text-muted: #8f5f71;
+            --border-soft: rgba(115, 21, 55, 0.15);
+            --tg-theme-text-color: var(--text-primary);
+            --tg-theme-hint-color: var(--text-muted);
+            --tg-theme-secondary-bg-color: var(--surface);
+            --tg-theme-bg-color: var(--surface-soft);
+            --tg-theme-section-separator-color: var(--border-soft);
+            --tg-theme-button-color: var(--brand-primary);
         }
 
         body {
             font-family: var(--font-english);
-            background: radial-gradient(circle at top, rgba(225,48,108,0.18), transparent 45%),
-                        radial-gradient(circle at 20% 80%, rgba(115,21,55,0.22), transparent 50%),
+            background: radial-gradient(circle at 20% 0%, rgba(225,48,108,0.18), transparent 55%),
+                        radial-gradient(circle at 80% 20%, rgba(115,21,55,0.15), transparent 45%),
                         var(--brand-light);
-            color: var(--tg-theme-text-color, #212529);
+            color: var(--text-primary);
             line-height: 1.6;
             padding: 16px;
             min-height: 100vh;
@@ -66,11 +76,11 @@
             top: 16px;
             right: 16px;
             z-index: 1000;
-            background: #fff;
+            background: var(--surface);
             border-radius: 26px;
             padding: 8px;
             box-shadow: 0 18px 35px rgba(115, 21, 55, 0.22);
-            border: 1px solid rgba(225, 48, 108, 0.3);
+            border: 1px solid rgba(225, 48, 108, 0.25);
             display: flex;
             gap: 4px;
             animation: slideInRight 0.5s var(--animation-easing);
@@ -132,7 +142,7 @@
         }
 
         .header p {
-            color: var(--tg-theme-hint-color, #999999);
+            color: var(--text-muted);
             font-size: 16px;
         }
 
@@ -182,7 +192,7 @@
 
         .brand-follow span::before {
             content: "\f16d";
-            font-family: "Font Awesome 6 Free";
+            font-family: "Font Awesome 6 Brands";
             font-weight: 900;
             color: var(--brand-primary);
         }
@@ -391,11 +401,12 @@
             padding: 15px;
             border: 1px solid rgba(225,48,108,0.35);
             border-radius: 10px;
-            background: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.9);
             color: var(--brand-dark);
             font-size: 14px;
             resize: vertical;
             font-family: inherit;
+            box-shadow: inset 0 8px 15px rgba(115,21,55,0.05);
         }
 
         .file-input-container {
@@ -1046,8 +1057,8 @@
             <span data-en="Support Us by following @rival_eg" data-ar="ادعمني بمتابعتنا على إنستغرام">
                 Support Us by following @rival_eg
             </span>
-            <a href="https://instagram.com/rival_eg" target="_blank" rel="noopener noreferrer" data-en="Follow RIVAL" data-ar="Follow RIVAL">
-                Follow RIVAL
+            <a href="https://instagram.com/rival_eg" target="_blank" rel="noopener noreferrer" data-en="Follow" data-ar="Follow">
+                Follow
             </a>
         </div>
         <!-- Step 2: Question Type -->
