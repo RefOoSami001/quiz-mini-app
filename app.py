@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
 import pdfplumber
 from io import BytesIO
-from api_service import MCQGeneratorAPI
 from api_service2 import MCQGeneratorAPI2
 from api_service3 import MCQGeneratorAPI3
 from config import MIN_TEXT_LENGTH, BOT_TOKEN
@@ -20,7 +19,6 @@ app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Initialize API services
-api_service1 = MCQGeneratorAPI()
 api_service2 = MCQGeneratorAPI2()
 api_service3 = MCQGeneratorAPI3()
 
@@ -92,7 +90,7 @@ def generate_questions():
     try:
         data = request.get_json()
         session_id = data.get('session_id')
-        model = data.get('model', '1')
+        model = data.get('model', '2')
         text = data.get('text', '')
         question_count = data.get('question_count', 10)
         question_type = data.get('question_type')  # for model 3: 'true/false' or 'Multiple Choice'
@@ -111,16 +109,14 @@ def generate_questions():
             user_sessions[session_id]['question_count'] = question_count
             if question_type:
                 user_sessions[session_id]['question_type'] = question_type
-        
+
         # Generate questions asynchronously
         def _generate():
             try:
                 success = False
                 result = None
                 
-                if model == '1':
-                    success, result = api_service1.generate_questions(text)
-                elif model == '2':
+                if model == '2':
                     success, result = api_service2.generate_questions(text, question_count)
                 elif model == '3':
                     qt = question_type or user_sessions.get(session_id, {}).get('question_type') or 'Multiple Choice'
@@ -130,37 +126,88 @@ def generate_questions():
                         normalized = []
                         questions = result.get('questions') if isinstance(result, dict) else None
                         if isinstance(questions, list):
+                            # Get question type from session to help determine format
+                            session_qt = qt.lower()
+                            is_short_answer = 'short' in session_qt or 'short_answer' in session_qt
+                            
                             for q in questions:
-                                if 'options' in q and 'correct_answer' in q:
-                                    # Multiple Choice: options like ["A) ...", ...], correct_answer is like "A) ..."
-                                    opts = q.get('options', [])
-                                    correct_text = q.get('correct_answer')
+                                # Handle new API format: uses 'answer' instead of 'correct_answer'
+                                answer_key = 'answer' if 'answer' in q else 'correct_answer'
+                                
+                                if 'options' in q and answer_key in q:
+                                    # Multiple Choice: handle both formats
+                                    opts_raw = q.get('options', [])
+                                    correct_text = q.get(answer_key)
                                     correct_index = 0
-                                    for idx, opt in enumerate(opts):
-                                        if opt == correct_text:
-                                            correct_index = idx
-                                            break
-                                    normalized.append({
-                                        'question': q.get('question', ''),
-                                        'options': opts,
-                                        'correct': correct_index,
-                                        'explanation': ''
-                                    })
-                                elif 'correct_answer' in q and 'question' in q:
-                                    # True/False: we will map to options ["True","False"] and correct index
-                                    correct_bool = str(q.get('correct_answer', '')).strip().lower() in ['true', 't', '1']
-                                    opts = ['True', 'False']
-                                    correct_index = 0 if correct_bool else 1
-                                    normalized.append({
-                                        'question': q.get('question', ''),
-                                        'options': opts,
-                                        'correct': correct_index,
-                                        'explanation': ''
-                                    })
+                                    opts = []
+                                    
+                                    # Check if options is a list of objects (new format) or strings (old format)
+                                    if opts_raw and len(opts_raw) > 0 and isinstance(opts_raw[0], dict):
+                                        # New format: [{'label': 'A', 'text': '...', 'is_correct': True/False}, ...]
+                                        for idx, opt_obj in enumerate(opts_raw):
+                                            label = opt_obj.get('label', '')
+                                            opt_text = opt_obj.get('text', '')
+                                            is_correct = opt_obj.get('is_correct', False)
+                                            
+                                            # Format as "A) Text" or just "Text" if no label
+                                            if label:
+                                                opt_str = f"{label}) {opt_text}" if opt_text else label
+                                            else:
+                                                opt_str = opt_text if opt_text else ''
+                                            opts.append(opt_str)
+                                            
+                                            # Find correct index: prioritize is_correct flag, then match answer text
+                                            if is_correct:
+                                                correct_index = idx
+                                            elif correct_text and opt_text and correct_text.strip().lower() == opt_text.strip().lower():
+                                                correct_index = idx
+                                    else:
+                                        # Old format: ["A) ...", "B) ...", ...]
+                                        opts = opts_raw if opts_raw else []
+                                        for idx, opt in enumerate(opts):
+                                            if opt == correct_text or (isinstance(opt, str) and correct_text and correct_text in opt):
+                                                correct_index = idx
+                                                break
+                                    
+                                    if opts:  # Only add if we have valid options
+                                        normalized.append({
+                                            'question': q.get('question', ''),
+                                            'options': opts,
+                                            'correct': correct_index,
+                                            'explanation': ''
+                                        })
+                                elif answer_key in q and 'question' in q:
+                                    answer_value = str(q.get(answer_key, '')).strip()
+                                    
+                                    if is_short_answer or ('options' not in q and len(answer_value) > 10):
+                                        # Short Answer: has answer but no options, or answer is long (not True/False)
+                                        normalized.append({
+                                            'question': q.get('question', ''),
+                                            'options': [],  # Empty options indicates short answer
+                                            'correct': -1,  # No correct index for short answer
+                                            'answer': answer_value,  # Store the answer text
+                                            'explanation': ''
+                                        })
+                                    else:
+                                        # True/False: answer is 'True' or 'False', create options ["True","False"]
+                                        correct_bool = answer_value.lower() in ['true', 't', '1']
+                                        opts = ['True', 'False']
+                                        correct_index = 0 if correct_bool else 1
+                                        normalized.append({
+                                            'question': q.get('question', ''),
+                                            'options': opts,
+                                            'correct': correct_index,
+                                            'explanation': ''
+                                        })
                         if normalized:
                             result = normalized
-                    except Exception:
-                        pass
+                        else:
+                            # If no questions were normalized, mark as failed
+                            success = False
+                            result = 'No valid questions could be generated from your material.'
+                    except Exception as e:
+                        success = False
+                        result = f'Error processing questions: {str(e)}'
                 else:
                     success, result = False, 'Unknown model'
                 
@@ -367,7 +414,7 @@ def send_to_telegram():
         for question in questions:
             try:
                 # Validate question
-                if not question.get('question') or not question.get('options') or len(question.get('options', [])) < 2:
+                if not question.get('question'):
                     skipped_count += 1
                     continue
                 
@@ -376,27 +423,43 @@ def send_to_telegram():
                     skipped_count += 1
                     continue
                 
-                # Filter out answers that are too long
-                valid_options = []
-                for option in question['options']:
-                    if len(option) <= 100:
-                        valid_options.append(option)
+                # Check if it's a short answer question (no options or empty options)
+                options = question.get('options', [])
+                is_short_answer = len(options) == 0 or question.get('correct') == -1
                 
-                if len(valid_options) < 2:
-                    skipped_count += 1
-                    continue
-                
-                # Send poll
-                bot.send_poll(
-                    user_id,
-                    question['question'],
-                    options=valid_options,
-                    is_anonymous=True,
-                    type='quiz',
-                    correct_option_id=question.get('correct', 0),
-                    explanation=question.get('explanation', '')
-                )
-                sent_count += 1
+                if is_short_answer:
+                    # Send as text message for short answer questions
+                    answer = question.get('answer', 'No answer provided')
+                    message = f"❓ {question['question']}\n\n✅ Answer: {answer}"
+                    bot.send_message(user_id, message)
+                    sent_count += 1
+                else:
+                    # Multiple Choice or True/False: send as poll
+                    if len(options) < 2:
+                        skipped_count += 1
+                        continue
+                    
+                    # Filter out answers that are too long
+                    valid_options = []
+                    for option in options:
+                        if len(option) <= 100:
+                            valid_options.append(option)
+                    
+                    if len(valid_options) < 2:
+                        skipped_count += 1
+                        continue
+                    
+                    # Send poll
+                    bot.send_poll(
+                        user_id,
+                        question['question'],
+                        options=valid_options,
+                        is_anonymous=True,
+                        type='quiz',
+                        correct_option_id=question.get('correct', 0),
+                        explanation=question.get('explanation', '')
+                    )
+                    sent_count += 1
                 
             except Exception as e:
                 print(f"Error sending question: {e}")
