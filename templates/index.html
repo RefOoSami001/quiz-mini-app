@@ -1419,6 +1419,12 @@
     </style>
 </head>
 <body>
+    <!-- Maintenance Mode Banner -->
+    <div id="maintenanceBanner" class="maintenance-banner" style="display: none; text-align: center; background: #ff6b6b; color: white; padding: 20px; margin: 16px; border-radius: 12px; font-weight: bold;">
+        <i class="fas fa-exclamation-circle"></i>
+        <p data-en="The application is currently under maintenance. Please try again later." data-ar="التطبيق حالياً قيد الصيانة. يرجى المحاولة لاحقاً.">The application is currently under maintenance. Please try again later.</p>
+    </div>
+
     <!-- Language Selector -->
     <div class="language-selector">
         <button id="langToggle" class="lang-toggle" data-lang="ar" aria-label="Toggle language">
@@ -1648,6 +1654,7 @@
                 this.initializeTelegramWebApp();
                 this.initializeLanguage();
                 this.initializeLoadingMessages();
+                this.checkMaintenanceMode();
                 this.showFooter();
             }
 
@@ -1714,6 +1721,65 @@
 
             showFooter() {
                 document.getElementById('footer').classList.add('show');
+            }
+
+            checkMaintenanceMode() {
+                fetch('/api/maintenance-status')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.maintenance_mode) {
+                            this.enableMaintenanceMode();
+                        }
+                    })
+                    .catch(() => {
+                        // If API call fails, continue normally
+                    });
+            }
+
+            enableMaintenanceMode() {
+                // Show maintenance banner
+                const maintenanceBanner = document.getElementById('maintenanceBanner');
+                if (maintenanceBanner) {
+                    maintenanceBanner.style.display = 'block';
+                }
+
+                // Disable all interactive buttons
+                this.disableAllButtons();
+            }
+
+            disableAllButtons() {
+                // Disable all buttons that interact with the API or navigation
+                const buttonSelectors = [
+                    '#nextStep1', '#nextStep2', '#nextStep3', '#nextStep4',
+                    '#backStep2', '#backStep3', '#backStep4',
+                    '#generateQuestions',
+                    '#sendToTelegram',
+                    '#restartQuiz',
+                    '.input-btn',
+                    '.qtype-btn',
+                    '.model-btn',
+                    '.count-btn',
+                    '.quiz-btn',
+                    '#prevQuestion',
+                    '#nextQuestion'
+                ];
+
+                buttonSelectors.forEach(selector => {
+                    document.querySelectorAll(selector).forEach(btn => {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.5';
+                        btn.style.cursor = 'not-allowed';
+                        btn.style.pointerEvents = 'none';
+                    });
+                });
+
+                // Disable input fields
+                document.querySelectorAll('input[type="text"], input[type="file"], textarea').forEach(input => {
+                    input.disabled = true;
+                    input.style.opacity = '0.5';
+                    input.style.cursor = 'not-allowed';
+                    input.style.pointerEvents = 'none';
+                });
             }
 
             setLanguage(lang) {
@@ -2121,37 +2187,38 @@
             parseQuestions(questionsData) {
                 const questions = [];
                 
-                if (this.selectedModel === '2') {
-                    // Model 2 format
-                    Object.values(questionsData).forEach((q, index) => {
-                        if (q.text && q.options && q.answer) {
+                // Both models now return normalized array format from backend
+                if (Array.isArray(questionsData)) {
+                    questionsData.forEach((q) => {
+                        // Handle normalized format: {question, options, correct, answer?, explanation}
+                        if (q.question && (q.options || q.answer)) {
+                            const normalizedQ = {
+                                question: q.question,
+                                options: q.options || [],
+                                correct: q.correct !== undefined ? q.correct : -1,
+                                explanation: q.explanation || ''
+                            };
+                            
+                            // For short-answer questions
+                            if (q.answer !== undefined) {
+                                normalizedQ.answer = q.answer;
+                            }
+                            
+                            questions.push(normalizedQ);
+                        }
+                    });
+                } else if (typeof questionsData === 'object' && questionsData !== null) {
+                    // Fallback: handle old dict format (Model 2 raw response) if backend normalization fails
+                    Object.values(questionsData).forEach((q) => {
+                        if (q.text && q.options && q.answer !== undefined) {
                             const options = Object.values(q.options);
                             const correctIndex = Object.keys(q.options).indexOf(q.answer);
                             questions.push({
                                 question: q.text,
                                 options: options,
-                                correct: correctIndex,
+                                correct: correctIndex >= 0 ? correctIndex : 0,
                                 explanation: ''
                             });
-                        }
-                    });
-                } else if (this.selectedModel === '3') {
-                    // Backend normalizes API3 to unified list; accept as-is if matches
-                    // Check for both regular questions (with options) and short answer questions (with answer field)
-                    if (Array.isArray(questionsData) && questionsData.length && questionsData[0].question) {
-                        return questionsData;
-                    }
-                    // Fallback: try to parse raw API3 structure from examples
-                    const qArr = Array.isArray(questionsData) ? questionsData : (questionsData?.questions || []);
-                    qArr.forEach((q) => {
-                        if (q.options && q.correct_answer && q.question) {
-                            const options = q.options;
-                            const correctIndex = options.findIndex(o => o === q.correct_answer);
-                            questions.push({ question: q.question, options, correct: correctIndex >= 0 ? correctIndex : 0, explanation: '' });
-                        } else if (q.correct_answer !== undefined && q.question) {
-                            const opts = ['True', 'False'];
-                            const correctBool = String(q.correct_answer).trim().toLowerCase() === 'true';
-                            questions.push({ question: q.question, options: opts, correct: correctBool ? 0 : 1, explanation: '' });
                         }
                     });
                 }
@@ -2161,7 +2228,13 @@
 
             startQuiz() {
                 if (this.questions.length === 0) {
-                    this.showMessage('No valid questions could be generated from your material.', 'error');
+                    // Provide more detailed error message
+                    const errorMsg = 'Unable to generate questions. Please try:\\n' +
+                        '1. Use more detailed study material (at least 200+ characters)\\n' +
+                        '2. Make sure your text is clear and structured\\n' +
+                        '3. Try a different AI model\\n' +
+                        '4. Check your internet connection';
+                    this.showMessage(errorMsg, 'error');
                     return;
                 }
 
