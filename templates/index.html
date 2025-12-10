@@ -7,7 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&family=Playball&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -17,19 +17,45 @@
         }
 
         :root {
-            --font-english: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-arabic: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
-            --animation-duration: 0.2s;
+            --font-english: 'Alexandria', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-arabic: 'Alexandria', 'Segoe UI', Tahoma, Arial, sans-serif;
+            --animation-duration: 0.3s;
             --animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
-            --brand-primary: #e1306c;
-            --brand-dark: #731537;
-            --brand-light: #fff3f8;
+            
+            /* Modern Gradient Color Palette */
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-gradient-hover: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            --brand-primary: #667eea;
+            --brand-secondary: #764ba2;
+            --brand-accent: #f093fb;
+            --brand-dark: #4c51bf;
+            --brand-light: #f7fafc;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            
+            /* Surface Colors */
             --surface: #ffffff;
-            --surface-soft: #fff9fc;
-            --text-primary: #311020;
-            --text-muted: #8f5f71;
-            --border-soft: rgba(115, 21, 55, 0.15);
-            --card-border: rgba(115, 21, 55, 0.12);
+            --surface-elevated: #ffffff;
+            --surface-soft: #f8fafc;
+            --surface-hover: #f1f5f9;
+            
+            /* Text Colors */
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --text-inverse: #ffffff;
+            
+            /* Border & Shadow */
+            --border-color: rgba(148, 163, 184, 0.2);
+            --border-soft: rgba(148, 163, 184, 0.1);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-glow: 0 0 20px rgba(102, 126, 234, 0.3);
+            
+            /* Telegram Theme Overrides */
             --tg-theme-text-color: var(--text-primary);
             --tg-theme-hint-color: var(--text-muted);
             --tg-theme-secondary-bg-color: var(--surface);
@@ -40,15 +66,23 @@
 
         body {
             font-family: var(--font-english);
-            background: radial-gradient(circle at 20% 0%, rgba(253, 128, 170, 0.18), transparent 55%),
-                        radial-gradient(circle at 80% 20%, rgba(126, 55, 81, 0.15), transparent 45%),
-                        var(--brand-light);
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 50%, #f093fb10 100%),
+                        radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.08), transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.08), transparent 50%),
+                        var(--surface-soft);
+            background-attachment: fixed;
             color: var(--text-primary);
             line-height: 1.6;
-            padding: 16px;
+            padding: 20px 16px;
             min-height: 100vh;
             margin: 0;
             transition: all var(--animation-duration) var(--animation-easing);
+        }
+        
+        @media (max-width: 640px) {
+            body {
+                padding: 16px 12px;
+            }
         }
 
         body[dir="rtl"] {
@@ -56,9 +90,16 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 680px;
             margin: 0 auto;
             animation: fadeInUp 0.6s var(--animation-easing);
+            position: relative;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+            }
         }
 
         @keyframes fadeInUp {
@@ -74,17 +115,25 @@
 
         .language-selector {
             position: fixed;
-            top: 16px;
-            right: 16px;
+            top: 20px;
+            right: 20px;
             z-index: 1000;
-            background: var(--surface);
-            border-radius: 26px;
-            padding: 8px;
-            box-shadow: 0 18px 35px rgba(115, 21, 55, 0.22);
-            border: 1px solid rgba(225, 48, 108, 0.25);
+            background: #ffffff19;
+            border-radius: 16px;
+            padding: 6px;
+            border: 1px solid var(--border-color);
             display: flex;
             gap: 4px;
             animation: slideInRight 0.5s var(--animation-easing);
+            backdrop-filter: blur(10px);
+        }
+        
+        @media (max-width: 640px) {
+            .language-selector {
+                top: 12px;
+                right: 12px;
+                padding: 4px;
+            }
         }
 
         @keyframes slideInRight {
@@ -101,9 +150,9 @@
         .lang-btn {
             padding: 8px 16px;
             border: none;
-            border-radius: 20px;
+            border-radius: 12px;
             background: transparent;
-            color: var(--brand-dark);
+            color: var(--text-secondary);
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -113,50 +162,132 @@
             gap: 6px;
         }
 
+        /* Single toggle language button */
+        .lang-toggle {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 12px;
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--animation-duration) var(--animation-easing);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lang-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .lang-toggle .lang-label { font-size: 14px; }
+
         .lang-btn:hover {
-            background: rgba(225, 48, 108, 0.15);
-            color: var(--brand-dark);
-            transform: scale(1.05);
+            background: var(--surface-hover);
+            color: var(--text-primary);
+            transform: translateY(-1px);
         }
 
         .lang-btn.active {
-            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
-            color: white;
-            box-shadow: 0 10px 18px rgba(115, 21, 55, 0.35);
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
+            box-shadow: var(--shadow-md);
+        }
+        
+        @media (max-width: 640px) {
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
+            padding: 24px 0;
             animation: fadeInUp 0.8s var(--animation-easing);
         }
 
         .header h1 {
-            font-size: 28px;
-            margin-bottom: 12px;
-            color: #000000;
+            font-size: 32px;
+            margin-bottom: 8px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
+            letter-spacing: -0.5px;
         }
 
         .header p {
-            color: var(--text-muted);
+            color: var(--text-secondary);
             font-size: 16px;
+            font-weight: 400;
+        }
+        
+        @media (max-width: 640px) {
+            .header {
+                margin-bottom: 24px;
+                padding: 16px 0;
+            }
+            .header h1 {
+                font-size: 26px;
+            }
+            .header p {
+                font-size: 14px;
+            }
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 18px;
-            padding: 24px;
-            margin-bottom: 20px;
-            border: 1px solid var(--card-border);
-            box-shadow: 0 16px 40px rgba(115, 21, 55, 0.15);
+            background: var(--surface-elevated);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
             backdrop-filter: blur(10px);
             transition: all var(--animation-duration) var(--animation-easing);
             animation: slideInUp 0.5s var(--animation-easing);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity var(--animation-duration) var(--animation-easing);
+        }
+        
+        .card:hover::before {
+            opacity: 1;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--brand-primary);
+        }
+        
+        @media (max-width: 640px) {
+            .card {
+                padding: 20px;
+                margin-bottom: 16px;
+                border-radius: 16px;
+            }
         }
 
         @keyframes slideInUp {
@@ -170,22 +301,29 @@
             }
         }
         .brand-follow {
-            margin: 0 auto 28px;
-            padding: 18px 22px;
-            border-radius: 18px;
-            border: 1px dashed rgba(225, 48, 108, 0.4);
-            background: rgba(225, 48, 108, 0.08);
+            margin: 0 auto 18px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px dashed var(--border-color);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.03), rgba(118, 75, 162, 0.03));
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 14px;
-            flex-wrap: wrap;
+            gap: 10px;
+            flex-wrap: nowrap;
+            transition: all var(--animation-duration) var(--animation-easing);
+        }
+        
+        .brand-follow:hover {
+            border-color: var(--brand-primary);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
         }
 
         .brand-follow span {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 600;
-            color: #731537;
+            color: var(--text-primary);
             display: flex;
             gap: 8px;
             align-items: center;
@@ -196,25 +334,25 @@
             font-family: "Font Awesome 6 Brands";
             font-weight: 900;
             color: var(--brand-primary);
+            font-size: 14px;
         }
 
-
-
         .brand-follow a {
-            background: #e1306c;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 999px;
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
+            padding: 8px 14px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
-            letter-spacing: 0.3px;
-            box-shadow: 0 10px 24px rgba(225, 48, 108, 0.3);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            letter-spacing: 0.2px;
+            font-size: 13px;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--animation-duration) var(--animation-easing);
         }
 
         .brand-follow a:hover {
             transform: translateY(-2px);
-            box-shadow: 0 14px 28px rgba(225, 48, 108, 0.35);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
         }
         .card:hover {
             transform: translateY(-4px) scale(1.02);
@@ -247,16 +385,35 @@
         }
 
         .step-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--tg-theme-text-color, #000000);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.3px;
+        }
+        
+        .step-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+        
+        @media (max-width: 640px) {
+            .step-title {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
         }
 
         .step-navigation {
             display: flex;
             gap: 12px;
-            margin-top: 20px;
+            margin-top: 28px;
             align-items: center;
         }
 
@@ -269,105 +426,189 @@
             flex: 0 0 auto;
             min-width: 100px;
             max-width: 120px;
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+        
+        .step-navigation .btn-secondary:hover {
+            background: var(--surface-hover);
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+            box-shadow: var(--shadow-md);
         }
 
         .model-options {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        @media (max-width: 640px) {
+            .model-options {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
         }
 
         .model-btn {
-            padding: 15px;
-            border: 2px solid rgba(225, 48, 108, 0.35);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.75);
-            color: var(--brand-dark);
-            font-size: 14px;
+            padding: 20px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all var(--animation-duration) var(--animation-easing);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .model-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: all var(--animation-duration) var(--animation-easing);
+            z-index: 0;
         }
 
         .model-btn i {
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: 28px;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
+            transition: transform var(--animation-duration) var(--animation-easing);
+        }
+        
+        .model-btn > div {
+            position: relative;
+            z-index: 1;
         }
 
         .model-btn:hover {
-            background: linear-gradient(135deg, rgba(225,48,108,0.95), rgba(115,21,55,0.9));
-            color: white;
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 15px 26px rgba(115,21,55,0.25);
+            border-color: var(--brand-primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .model-btn:hover::before {
+            left: 0;
+            opacity: 0.1;
+        }
+        
+        .model-btn:hover i {
+            transform: scale(1.1);
         }
 
         .model-btn.selected {
-            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
-            color: white;
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 15px 26px rgba(115,21,55,0.25);
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
+            border-color: transparent;
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+        }
+        
+        .model-btn.selected::before {
+            opacity: 0;
+        }
+        
+        .model-btn.selected i {
+            transform: scale(1.1);
         }
 
         .question-count-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        @media (max-width: 480px) {
+            .question-count-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .count-btn {
-            padding: 12px;
-            border: 1px solid rgba(225,48,108,0.25);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.7);
-            color: var(--brand-dark);
-            font-size: 14px;
+            padding: 16px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
             transition: all var(--animation-duration) var(--animation-easing);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             text-align: center;
         }
 
         .count-btn i {
-            font-size: 18px;
+            font-size: 20px;
+            color: var(--brand-primary);
+            transition: transform var(--animation-duration) var(--animation-easing);
         }
 
         .count-btn:hover {
-            background: rgba(225,48,108,0.12);
-            transform: translateY(-1px) scale(1.02);
+            background: var(--surface-hover);
+            border-color: var(--brand-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .count-btn:hover i {
+            transform: scale(1.15);
         }
 
         .count-btn.selected {
-            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
-            color: white;
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
             border-color: transparent;
-            transform: translateY(-1px) scale(1.02);
-            box-shadow: 0 6px 18px rgba(115,21,55,0.25);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .count-btn.selected i {
+            color: var(--text-inverse);
+            transform: scale(1.15);
         }
 
         .input-type-options {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        @media (max-width: 640px) {
+            .input-type-options {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
         }
 
         .input-btn {
-            padding: 15px;
-            border: 2px solid rgba(225,48,108,0.35);
-            border-radius: 12px;
-            background: rgba(255,255,255,0.75);
-            color: var(--brand-dark);
-            font-size: 14px;
+            padding: 20px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all var(--animation-duration) var(--animation-easing);
@@ -375,39 +616,90 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .input-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: all var(--animation-duration) var(--animation-easing);
+            z-index: 0;
         }
 
         .input-btn i {
-            font-size: 24px;
+            font-size: 28px;
+            position: relative;
+            z-index: 1;
+            transition: transform var(--animation-duration) var(--animation-easing);
+        }
+        
+        .input-btn span {
+            position: relative;
+            z-index: 1;
         }
 
         .input-btn:hover {
-            background: linear-gradient(135deg, rgba(225,48,108,0.95), rgba(115,21,55,0.9));
-            color: white;
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 12px 24px rgba(115,21,55,0.25);
+            border-color: var(--brand-primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .input-btn:hover::before {
+            left: 0;
+            opacity: 0.1;
+        }
+        
+        .input-btn:hover i {
+            transform: scale(1.1);
         }
 
         .input-btn.selected {
-            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
-            color: white;
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 12px 24px rgba(115,21,55,0.25);
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
+            border-color: transparent;
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+        }
+        
+        .input-btn.selected::before {
+            opacity: 0;
+        }
+        
+        .input-btn.selected i {
+            transform: scale(1.1);
         }
 
         .text-input {
             width: 100%;
             min-height: 200px;
-            padding: 15px;
-            border: 1px solid rgba(225,48,108,0.35);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.9);
-            color: var(--brand-dark);
-            font-size: 14px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--surface);
+            color: var(--text-primary);
+            font-size: 15px;
             resize: vertical;
             font-family: inherit;
-            box-shadow: inset 0 8px 15px rgba(115,21,55,0.05);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--animation-duration) var(--animation-easing);
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            box-shadow: var(--shadow-md), 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .text-input::placeholder {
+            color: var(--text-muted);
         }
 
         .file-input-container {
@@ -448,21 +740,22 @@
         .btn {
             width: 100%;
             padding: 16px 24px;
-            background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
-            color: white;
+            background: var(--primary-gradient);
+            color: var(--text-inverse);
             border: none;
-            border-radius: 14px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all var(--animation-duration) var(--animation-easing);
-            box-shadow: 0 12px 26px rgba(115, 21, 55, 0.25);
+            box-shadow: var(--shadow-md), var(--shadow-glow);
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            letter-spacing: 0.3px;
         }
 
         .btn::before {
@@ -481,19 +774,22 @@
         }
 
         .btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 16px 30px rgba(115, 21, 55, 0.35);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg), 0 0 25px rgba(102, 126, 234, 0.4);
+            background: var(--primary-gradient-hover);
         }
 
         .btn:active {
-            transform: translateY(-1px) scale(0.98);
+            transform: translateY(0);
+            box-shadow: var(--shadow-md);
         }
 
         .btn:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
-            box-shadow: 0 2px 8px rgba(115, 21, 55, 0.2);
+            box-shadow: var(--shadow-sm);
+            background: var(--text-muted);
         }
 
         .btn i {
@@ -663,6 +959,74 @@
             color: white;
             border-color: #f44336;
             animation: incorrectShake 0.3s ease-in-out;
+        }
+
+        .short-answer-container {
+            margin-top: 20px;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(225, 48, 108, 0.3);
+        }
+
+        .short-answer-content {
+            padding: 15px;
+            background: rgba(225, 48, 108, 0.1);
+            border-left: 4px solid var(--brand-primary);
+            border-radius: 10px;
+        }
+
+        .short-answer-blur {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.307);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border-radius: 10px;
+            z-index: 10;
+        }
+
+        .short-answer-blur:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .short-answer-blur.revealed {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .blur-hint {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--brand-dark);
+            font-weight: 600;
+            font-size: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .blur-hint i {
+            font-size: 20px;
+            color: var(--brand-primary);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
         }
 
         @keyframes correctPulse {
@@ -986,16 +1350,12 @@
 </head>
 <body>
     <!-- Language Selector -->
-                <div class="language-selector">
-        <button class="lang-btn" data-lang="en">
-                        <i class="fas fa-globe"></i>
-            English
-                    </button>
-        <button class="lang-btn active" data-lang="ar">
+    <div class="language-selector">
+        <button id="langToggle" class="lang-toggle" data-lang="ar" aria-label="Toggle language">
             <i class="fas fa-globe"></i>
-            العربية
+            <span class="lang-label">العربية</span>
         </button>
-                        </div>
+    </div>
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -1008,9 +1368,8 @@
 
     <div class="container">
         <div class="header">
-            <br><br><br>
             <p data-en="Transform your study materials into interactive quizzes" data-ar="حول موادك الدراسية إلى اختبارات تفاعلية">Transform your study materials into interactive quizzes</p>
-            </div>
+        </div>
 
         <!-- Step 1: Input Method (inline text or PDF) -->
         <div class="card step active" id="step1">
@@ -1074,7 +1433,11 @@
                     <i class="fas fa-check-double"></i>
                     <span data-en="True / False" data-ar="صح / خطأ">True / False</span>
                 </button>
-                </div>
+                <button class="input-btn qtype-btn" data-qtype="Short Answer">
+                    <i class="fas fa-pencil-alt"></i>
+                    <span data-en="Short Answer" data-ar="إجابة قصيرة">Short Answer</span>
+                </button>
+            </div>
             <div class="step-navigation">
                 <button class="btn btn-secondary" id="backStep2">
                     <i class="fas fa-arrow-left"></i>
@@ -1091,13 +1454,6 @@
         <div class="card step" id="step3">
             <div class="step-title" data-en="Choose AI Model" data-ar="اختر نموذج الذكاء الاصطناعي">Choose AI Model</div>
             <div class="model-options">
-                <button class="model-btn" data-model="1">
-                    <i class="fas fa-brain"></i>
-                    <div>
-                        <div data-en="Smart" data-ar="ذكي">Smart</div>
-                        <small data-en="Best quality questions + answer explanations" data-ar="أفضل جودة للأسئلة مع شرح للإجابات">Best quality questions + answer explanations</small>
-                    </div>
-                </button>
                 <button class="model-btn" data-model="2">
                     <i class="fas fa-magic"></i>
                     <div>
@@ -1121,10 +1477,6 @@
             <button class="btn" id="nextStep3" disabled>
                 <i class="fas fa-arrow-right"></i>
                     <span data-en="Continue" data-ar="متابعة">Continue</span>
-            </button>
-            <button class="btn" id="generateFromStep3" style="display:none;">
-                <i class="fas fa-magic"></i>
-                <span data-en="Generate Quiz" data-ar="إنشاء اختبار">Generate Quiz</span>
             </button>
             </div>
         </div>
@@ -1256,12 +1608,24 @@
             initializeLanguage() {
                 // Set initial language to Arabic
                 this.setLanguage('ar');
-                
-                // Add language switcher event listeners
+
+                // Single toggle button (if present) and fallback to legacy .lang-btn
+                const langToggle = document.getElementById('langToggle');
+                if (langToggle) {
+                    langToggle.addEventListener('click', () => {
+                        const newLang = this.currentLanguage === 'ar' ? 'en' : 'ar';
+                        this.setLanguage(newLang);
+                        langToggle.setAttribute('data-lang', newLang);
+                        const lbl = langToggle.querySelector('.lang-label');
+                        if (lbl) lbl.textContent = newLang === 'ar' ? 'العربية' : 'English';
+                    });
+                }
+
+                // Backwards-compatible: if there are individual .lang-btn elements, attach listeners
                 document.querySelectorAll('.lang-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        const lang = e.target.dataset.lang;
-                        this.setLanguage(lang);
+                        const lang = e.currentTarget.dataset.lang;
+                        if (lang) this.setLanguage(lang);
                     });
                 });
             }
@@ -1317,6 +1681,14 @@
                     }
                 });
                 
+                // Update single toggle label if present
+                const langToggle = document.getElementById('langToggle');
+                if (langToggle) {
+                    const lbl = langToggle.querySelector('.lang-label');
+                    if (lbl) lbl.textContent = lang === 'ar' ? 'العربية' : 'English';
+                    langToggle.setAttribute('data-lang', lang);
+                }
+
                 // Update button icons for RTL
                 if (lang === 'ar') {
                     // For Arabic, back buttons should point right, forward buttons should point left
@@ -1401,15 +1773,9 @@
                         e.currentTarget.classList.add('selected');
                         this.selectedModel = e.currentTarget.dataset.model;
                         const nextBtn = document.getElementById('nextStep3');
-                        const genBtn = document.getElementById('generateFromStep3');
-                        if (this.selectedModel === '1') {
-                            nextBtn.style.display = 'none';
-                            genBtn.style.display = 'inline-flex';
-                        } else {
-                            genBtn.style.display = 'none';
-                            nextBtn.style.display = 'inline-flex';
-                            nextBtn.disabled = false;
-                        }
+                        // Model 2 or 3: show next button
+                        nextBtn.style.display = 'inline-flex';
+                        nextBtn.disabled = false;
                     });
                 });
 
@@ -1444,8 +1810,8 @@
                 });
 
                 document.getElementById('nextStep2').addEventListener('click', () => {
-                    if (this.selectedQuestionType === 'true/false') {
-                        // auto-select model 3 and go to count
+                    if (this.selectedQuestionType === 'true/false' || this.selectedQuestionType === 'Short Answer') {
+                        // auto-select model 3 and go to count for True/False and Short Answer
                         this.selectedModel = '3';
                         this.showStep(4);
                     } else {
@@ -1459,12 +1825,6 @@
                         this.showStep(4);
                 });
 
-                // Generate from step 3 (model 1)
-                document.getElementById('generateFromStep3').addEventListener('click', () => {
-                    const text = document.getElementById('textInput').value.trim();
-                    if (text.length < 30) { this.showMessage('Please provide more detailed text (at least 30 characters).', 'error'); return; }
-                    this.generateQuestions(text);
-                });
 
                 // Question count selection
                 document.querySelectorAll('.count-btn').forEach(btn => {
@@ -1695,20 +2055,7 @@
             parseQuestions(questionsData) {
                 const questions = [];
                 
-                if (this.selectedModel === '1') {
-                    // Model 1 format
-                    questionsData.forEach((q, index) => {
-                        if (q.question && q.answers && q.answers.length >= 2) {
-                            const correctIndex = q.answers.findIndex(ans => ans.isCorrect);
-                            questions.push({
-                                question: q.question,
-                                options: q.answers.map(ans => ans.answer),
-                                correct: correctIndex,
-                                explanation: q.explanation || ''
-                            });
-                        }
-                    });
-                } else if (this.selectedModel === '2') {
+                if (this.selectedModel === '2') {
                     // Model 2 format
                     Object.values(questionsData).forEach((q, index) => {
                         if (q.text && q.options && q.answer) {
@@ -1724,7 +2071,8 @@
                     });
                 } else if (this.selectedModel === '3') {
                     // Backend normalizes API3 to unified list; accept as-is if matches
-                    if (Array.isArray(questionsData) && questionsData.length && questionsData[0].question && questionsData[0].options) {
+                    // Check for both regular questions (with options) and short answer questions (with answer field)
+                    if (Array.isArray(questionsData) && questionsData.length && questionsData[0].question) {
                         return questionsData;
                     }
                     // Fallback: try to parse raw API3 structure from examples
@@ -1777,14 +2125,51 @@
                 const optionsList = document.getElementById('optionsList');
                 optionsList.innerHTML = '';
                 
-                question.options.forEach((option, index) => {
-                    const li = document.createElement('li');
-                    li.className = 'option';
-                    li.textContent = option;
-                    li.style.pointerEvents = 'auto';
-                    li.addEventListener('click', () => this.selectOption(index));
-                    optionsList.appendChild(li);
-                });
+                // Check if it's a short answer question (no options or empty options)
+                const isShortAnswer = !question.options || question.options.length === 0 || question.correct === -1;
+                
+                if (isShortAnswer && question.answer) {
+                    // Display short answer question: show question and answer with blur overlay
+                    const answerContainer = document.createElement('div');
+                    answerContainer.className = 'short-answer-container';
+                    
+                    const answerContent = document.createElement('div');
+                    answerContent.className = 'short-answer-content';
+                    answerContent.innerHTML = `<strong style="color: var(--brand-dark);">Answer:</strong><br><span class="answer-text" style="color: var(--text-primary);">${question.answer}</span>`;
+                    
+                    const blurOverlay = document.createElement('div');
+                    blurOverlay.className = 'short-answer-blur';
+                    blurOverlay.innerHTML = '<div class="blur-hint"><i class="fas fa-hand-pointer"></i> Click to reveal answer</div>';
+                    
+                    // Add click handler to remove blur
+                    blurOverlay.addEventListener('click', () => {
+                        blurOverlay.classList.add('revealed');
+                        setTimeout(() => {
+                            blurOverlay.style.display = 'none';
+                            // Auto-advance after revealing answer
+                            if (this.currentQuestionIndex === this.questions.length - 1) {
+                                setTimeout(() => this.showResults(), 800);
+                            } else {
+                                document.getElementById('nextQuestion').style.display = 'inline-block';
+                                document.getElementById('nextQuestion').disabled = false;
+                            }
+                        }, 300);
+                    });
+                    
+                    answerContainer.appendChild(answerContent);
+                    answerContainer.appendChild(blurOverlay);
+                    optionsList.appendChild(answerContainer);
+                } else {
+                    // Multiple Choice or True/False: show options
+                    question.options.forEach((option, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'option';
+                        li.textContent = option;
+                        li.style.pointerEvents = 'auto';
+                        li.addEventListener('click', () => this.selectOption(index));
+                        optionsList.appendChild(li);
+                    });
+                }
                 
                 // Hide explanation initially
                 const explanation = document.getElementById('explanation');
@@ -1826,13 +2211,6 @@
                     opt.style.pointerEvents = 'none';
                 });
                 
-                // Show explanation for model 1 questions
-                if (this.selectedModel === '1' && question.explanation) {
-                setTimeout(() => {
-                        document.getElementById('explanationText').textContent = question.explanation;
-                        document.getElementById('explanation').classList.add('show');
-                    }, 500);
-                }
                 
                 // Check if this is the last question
                 if (this.currentQuestionIndex === this.questions.length - 1) {
@@ -1932,7 +2310,6 @@
                 document.getElementById('nextStep1').disabled = true;
                 document.getElementById('nextStep2').disabled = true;
                 document.getElementById('nextStep3').disabled = true;
-                document.getElementById('generateFromStep3').style.display = 'none';
             }
 
             showLoading(text) {
