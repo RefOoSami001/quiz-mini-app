@@ -18,6 +18,9 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
+# Maintenance Mode Configuration
+MAINTENANCE_MODE = True  # Set to True to enable maintenance mode, False to disable
+
 # Initialize API services
 api_service2 = MCQGeneratorAPI2()
 api_service3 = MCQGeneratorAPI3()
@@ -42,6 +45,10 @@ def allowed_file(filename):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/api/maintenance-status')
+def maintenance_status():
+    return jsonify({'maintenance_mode': MAINTENANCE_MODE})
 
 @app.route('/favicon.ico')
 def favicon():
@@ -118,6 +125,36 @@ def generate_questions():
                 
                 if model == '2':
                     success, result = api_service2.generate_questions(text, question_count)
+                    # Normalize Model 2 responses into unified format
+                    if success and isinstance(result, dict):
+                        try:
+                            normalized = []
+                            for q_num, q_data in result.items():
+                                if isinstance(q_data, dict) and 'text' in q_data and 'options' in q_data and 'answer' in q_data:
+                                    opts = list(q_data['options'].values()) if isinstance(q_data['options'], dict) else q_data['options']
+                                    correct_key = q_data['answer']  # e.g., 'a', 'b', 'c', 'd'
+                                    correct_index = 0
+                                    
+                                    # Map letter to index
+                                    if isinstance(correct_key, str):
+                                        letter_index = {'a': 0, 'b': 1, 'c': 2, 'd': 3}.get(correct_key.lower(), 0)
+                                        correct_index = letter_index
+                                    
+                                    if opts:
+                                        normalized.append({
+                                            'question': q_data['text'],
+                                            'options': opts,
+                                            'correct': correct_index,
+                                            'explanation': ''
+                                        })
+                            if normalized:
+                                result = normalized
+                            else:
+                                success = False
+                                result = 'No valid questions in Model 2 response'
+                        except Exception as e:
+                            success = False
+                            result = f'Error normalizing Model 2 questions: {str(e)}'
                 elif model == '3':
                     qt = question_type or user_sessions.get(session_id, {}).get('question_type') or 'Multiple Choice'
                     success, result = api_service3.generate_questions(text, question_count, qt)
